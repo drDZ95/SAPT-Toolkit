@@ -232,6 +232,10 @@
       #topBar { padding: 5px 2px 2px 2px;}
       .lang-switcher { font-size: 0.9em; padding: 8px 7px;}
     }
+    .errore-periodo {
+  border: 2.5px solid #e63946 !important;
+  background-color: #fff0f0 !important;
+}
   </style>
 </head>
 
@@ -347,6 +351,7 @@
   <button id="calcBtn"></button>
 </div>
 <h2 id="resultHeader"></h2>
+<div id="errore" style="color:#e63946;font-weight:bold;text-align:center;margin-bottom:18px;"></div>
 <div id="risultato"></div>
 <button id="clearButton">🗑️ Clear All</button>
 
@@ -761,20 +766,33 @@ if (document.getElementById('risultato').innerHTML.trim() !== '') {
 document.getElementById('calcBtn').onclick = calculateResult;
 
 function calculateResult() {
-const lang = getCurrentLang();
-const t = translations[lang];
-  let err = '';
-  for(let i=0; i<periodsData.length; ++i) {
-    const p = periodsData[i];
-    if (!p.tipoAttivita) err += `Periodo ${i+1}: tipo mancante<br>`;
-if (p.tipoAttivita === "adult" && !p.categoria)
-  err += tReplace(t.categoryMissing, { p: i+1, cat: "" }) + "<br>";
-    if (!p.mesi) err += `Periodo ${i+1}: mesi mancanti<br>`;
-    if (!p.pensum && p.pensum !== 0) err += `Periodo ${i+1}: pensum mancante<br>`;
-  }
-  if (err) {
-document.getElementById('risultato').innerHTML = `<b>${t.formErrors}</b><br>` + err;
+  const lang = getCurrentLang();
+  const t = translations[lang];
+  let tuttoOK = true;
+  // Pulisci eventuali highlight precedenti
+  document.querySelectorAll('.periodo').forEach(div => div.classList.remove('errore-periodo'));
+
+  // Valida ogni periodo
+  periodsData.forEach((p, idx) => {
+    const div = document.querySelectorAll('.periodo')[idx];
+    if (
+      !p.tipoAttivita ||
+      (p.tipoAttivita === "adult" && !p.categoria) ||
+      !p.mesi ||
+      (!p.pensum && p.pensum !== 0)
+    ) {
+      tuttoOK = false;
+      if (div) div.classList.add('errore-periodo');
+    }
+  });
+
+  // Mostra messaggio unico se c’è almeno un errore
+  if (!tuttoOK) {
+    document.getElementById('errore').textContent = errorMessages[lang];
+    document.getElementById('risultato').innerHTML = '';
     return;
+  } else {
+    document.getElementById('errore').textContent = '';
   }
 
   // 2) Calcolo mesi per categoria
