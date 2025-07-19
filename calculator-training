@@ -1,4 +1,29 @@
 <!DOCTYPE html>
+
+<! /*********************************************************************
+ * SAPT-Toolkit Progress Calculator
+ * 
+ * © 2025 SVPA-ASMAP-ASAP (Swiss Association of Psychiatric Trainees)
+ *
+ * This code is proprietary and intended exclusively for use by the
+ * association and its members. Redistribution, commercial use,
+ * or modification is not permitted without explicit authorization.
+ *
+ * This tool is provided “as is”, without warranty of any kind.
+ * It is based on the interpretation of ISFM-FMH official training
+ * programs. The association and its members do not accept any
+ * liability for errors or omissions in the calculations.
+ * Always consult the official ISFM-FMH documents for reference.
+ *
+ * Key Features:
+ *  - Multi-language support (DE/FR/IT)
+ *  - Dynamic calculation of training periods and credits
+ *  - Visual summary of training progress
+ *  - Modern UI for clarity and usability
+ *
+ * For feedback or permission requests, contact info@svpa-asmap.ch
+ *********************************************************************/>
+
 <html lang="de">
 
 <head>
@@ -70,7 +95,7 @@
     }
 
     h1 {
-      color: #221c44;
+      color: #352682;
       font-weight: bold;
       text-align: center;
     }
@@ -232,6 +257,8 @@
 
 <p id="disclaimer" style="text-align:center; font-size:0.9em; color:#666; max-width: 700px; margin: 10px auto 20px;"></p>
 
+<h2 id="workTitle"></h2>
+
 <div id="periodi"></div>
 <div class="centered-button">
   <button id="addPeriodBtn"></button>
@@ -249,7 +276,9 @@
 </div>
 <br><br>
 
-<!-- Credits -->
+
+<h2 id="creditsTitle"></h2>
+
 <div id="creditSectionTeorici" class="section">
   <label for="creditiTeorici" id="labelTeorici"></label>
 <input type="number" id="creditiTeorici" min="0" max="500" placeholder="0">
@@ -280,7 +309,9 @@
     </select>
   </label>
 </div>
-<!-- Supervisions -->
+
+<h2 id="supervisionTitle"></h2>
+
 <div id="supervisionSection" class="section">
   <label for="supIPPB"><span id="labelSupIPPB"></span></label>
 <input type="number" id="supIPPB" min="0" max="500" placeholder="0">
@@ -288,9 +319,9 @@
 <br><br>
   <label for="supWeiter"><span id="labelSupWeiter"></span></label>
 <input type="number" id="supWeiter" min="0" max="500" placeholder="0">
-<span class="input-error" style="display:none;color:#dc3545;font-size:0.98em;margin-top:2px">
-<br><br>
-</span>
+<span class="input-error" style="display:none;color:#dc3545;font-size:0.98em;margin-top:2px"></span>
+</div>
+<div id="PsysupervisionSection" class="section">
   <label for="supSingolo"><span id="labelSupSingolo"></span></label>
 <input type="number" id="supSingolo" min="0" max="500" placeholder="0">
 <span class="input-error" style="display:none;color:#dc3545;font-size:0.98em;margin-top:2px"></span>
@@ -321,7 +352,8 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  // --- Traduzioni e struttura dati ---
+
+
   const translations = { 
      de: {
 pageTitle:'Berechnung des Ausbildungsfortschritts',
@@ -373,7 +405,23 @@ supHrsNo:'Nein',
     catCAmb: 'C Ambulant allgemein',
     catFormApprof: 'Beliebige vertiefte Weiterbildungskategorie',
     mesiPlaceholder: 'Anzahl Monate eingeben',
-    pensumPlaceholder: 'Pensum in % eingeben'
+    pensumPlaceholder: 'Pensum in % eingeben',
+        workTitle: "Arbeitstätigkeit",
+    creditsTitle: "Ausbildungscredits",
+    supervisionTitle: "Supervisionen",
+validMonths: "{v} / 72 gültige Monate",
+gapsAndExcess: "Fehlende und überschüssige Periode",
+formErrors: "Fehler im Formular:",
+    missingOspA: "Es fehlen {n} Monate in Kategorie A stationär (mindestens 12)",
+    missingTotOsp: "Es fehlen insgesamt {n} Monate Tätigkeit im stationären Bereich (mindestens 24)",
+    missingAmbA: "Es fehlen {n} Monate in Kategorie A ambulant (mindestens 12)",
+    missingTotAmb: "Es fehlen insgesamt {n} Monate Tätigkeit im ambulanten Bereich/Praxis (mind. 24)",
+    missingSom: "Es fehlen {n} Monate somatische Tätigkeit (mindestens 12)",
+    tooManyOsp: "Du hast {n} stationäre Monate, die nicht angerechnet werden können (maximal 36)",
+    tooManyAmb: "Du hast {n} ambulante/Praxis-Monate, die nicht angerechnet werden können (max 36)",
+    tooManyExtra: "Du hast {n} Monate Forschung/Kinderpsychiatrie, die nicht angerechnet werden können (max 12)",
+    excludedByLimit: "Aufgrund des Gesamtlimits von 60 Monaten für Psychiatrie und Extra wurden {n} Monate ausgeschlossen",
+categoryMissing: "Periode {p}: Kategorie {cat} fehlt"
 },
 
       fr:{
@@ -426,7 +474,23 @@ supHrsNo:'Non',
     catCAmb: 'C ambulatoire général',
     catFormApprof: 'Toute catégorie formation approfondie',
     mesiPlaceholder: 'Entrer nombre de mois',
-    pensumPlaceholder: 'Entrer le pensum en %'
+    pensumPlaceholder: 'Entrer le pensum en %',
+        workTitle: "Activité professionnelle",
+    creditsTitle: "Crédits de formation",
+    supervisionTitle: "Supervisions",
+validMonths: "{v} / 72 mois valides",
+gapsAndExcess: "Manques et excédents",
+    formErrors: "Erreurs dans le formulaire :",
+    missingOspA: "Il manque {n} mois en hospitalier catégorie A (minimum 12)",
+    missingTotOsp: "Il manque au total {n} mois d’activité hospitalière (minimum 24)",
+    missingAmbA: "Il manque {n} mois en ambulatoire catégorie A (minimum 12)",
+    missingTotAmb: "Il manque au total {n} mois d’activité ambulatoire/cabinet médical (minimum 24)",
+    missingSom: "Il manque {n} mois d’activité somatique (minimum 12)",
+    tooManyOsp: "Tu as {n} mois hospitaliers qui ne peuvent pas être comptabilisés (max 36)",
+    tooManyAmb: "Tu as {n} mois ambulatoires/cabinet médical qui ne peuvent pas être pris en compte (max 36)",
+    tooManyExtra: "Tu as {n} mois en recherche/pédopsychiatrie qui ne peuvent pas être comptabilisés (max 12)",
+    excludedByLimit: "En raison de la limite totale de 60 mois entre psychiatrie et extra, {n} mois ont été exclus",
+categoryMissing: "Période {p} : catégorie {cat} manquante"
 },
 
       it:{
@@ -478,19 +542,36 @@ supHrsNo:'No',
     catCAmb: 'C ambulatoriale generale',
     catFormApprof: 'Qualsiasi categoria di Formazione Approfondita',
     mesiPlaceholder: 'Inserisci numero di mesi totali',
-    pensumPlaceholder: 'Inserisci il pensum in %'
+    pensumPlaceholder: 'Inserisci il pensum in %',
+    workTitle: "Attività lavorativa",
+    creditsTitle: "Crediti di Formazione",
+    supervisionTitle: "Supervisioni",
+validMonths: "{v} / 72 mesi validi",
+gapsAndExcess: "Mancanze ed eccedenze",
+    formErrors: "Errori nel form:",
+    missingOspA: "Mancano {n} mesi in Ospedaliero categoria A (minimo 12)",
+    missingTotOsp: "Mancano {n} mesi totali di attività ospedaliera (minimo 24)",
+    missingAmbA: "Mancano {n} mesi in Ambulatoriale categoria A (minimo 12)",
+    missingTotAmb: "Mancano {n} mesi totali di attività ambulatoriale/studio medico (min 24)",
+    missingSom: "Mancano {n} mesi di attività somatica (minimo 12)",
+    tooManyOsp: "Hai {n} mesi ospedalieri che non possono essere conteggiati (max 36)",
+    tooManyAmb: "Hai {n} mesi ambulatoriali/studio medico che non possono essere conteggiati (max 36)",
+    tooManyExtra: "Hai {n} mesi in ricerca/infanzia che non possono essere conteggiati (max 12)",
+    excludedByLimit: "Per il limite totale di 60 mesi tra psichiatria e extra, sono stati esclusi {n} mesi",
+categoryMissing: "Periodo {p}: categoria {cat} mancante"
 }
 };
 
-  // --- Stato dinamico dei periodi ---
+function tReplace(str, data) {
+  return str.replace(/{(\w+)}/g, (_, k) => data[k]);
+}
+
   let periodsData = [];
 
-  // --- Utility: Ottieni lingua corrente ---
   function getCurrentLang() {
     return document.documentElement.lang || 'de';
   }
 
-  // --- Aggiorna testo secondo lingua selezionata ---
   function updateLanguage(lang) {
     const t = translations[lang];
     if (!t) return;
@@ -502,8 +583,11 @@ supHrsNo:'No',
     document.getElementById('disclaimer').innerHTML = t.disclaimer;
     document.getElementById('addPeriodBtn').textContent = t.addPeriod;
     document.getElementById('labelCambioCentro').textContent = t.questionCambioCentro;
+document.getElementById('workTitle').textContent = t.workTitle;
+document.getElementById('creditsTitle').textContent = t.creditsTitle;
+document.getElementById('supervisionTitle').textContent = t.supervisionTitle;
 
-    // Cambio centro
+
     const cambioCentroSel = document.getElementById('cambioCentro');
     cambioCentroSel.options[0].textContent = t.selectPrompt;
     cambioCentroSel.options[1].textContent = t.optSi;
@@ -519,7 +603,6 @@ supHrsNo:'No',
     document.getElementById('labelCong').textContent = t.labelCong;
     document.getElementById('labelSSPP').textContent = t.labelSSPP;
 
-    // Partecipazione SSPP
     const sss = document.getElementById('partecipazioneSSPP');
     sss.options[0].textContent = t.selectPrompt;
     sss.options[1].textContent = t.optYes;
@@ -534,7 +617,6 @@ supHrsNo:'No',
     document.getElementById('labelSupChange').textContent = t.labelSupChange;
     document.getElementById('labelHrsChange').textContent = t.labelHrsChange;
 
-    // Supervisioni select
     const sc = document.getElementById('supChange');
     sc.options[0].textContent = t.selectPrompt;
     sc.options[1].textContent = t.supChangeYes;
@@ -547,154 +629,121 @@ supHrsNo:'No',
 
     document.getElementById('selected-lang').textContent = lang.toUpperCase();
 
-    // Aggiorna i periodi senza cancellarli
+if (document.getElementById('risultato').innerHTML.trim() !== '') {
+  calculateResult();
+}
+
     renderPeriods();
 
   }
 
-  // --- Listener lingua ---
-  document.getElementById('languageSwitcher').addEventListener('change', e => {
-    const lang = e.target.value;
-    localStorage.setItem('selectedLanguage', lang);
-    updateLanguage(lang);
-    document.getElementById('languageSwitcher').value = lang;
-  });
-
-  // --- Imposta lingua all'avvio ---
-  const savedLang = localStorage.getItem('selectedLanguage') || 'de';
-  updateLanguage(savedLang);
-  document.getElementById('languageSwitcher').value = savedLang;
-
-  // --- Render periodi con possibilità di rimozione ---
   function renderPeriods() {
     const t = translations[getCurrentLang()];
     const container = document.getElementById('periodi');
     container.innerHTML = '';
 
-periodsData.forEach((period, idx) => {
-  const div = document.createElement('div');
-  div.className = 'periodo';
-  div.innerHTML = `
-    <button type="button" class="remove-period-btn" data-idx="${idx}" style="position:absolute;top:-18px;right:-18px;">✖</button>
-    <label>
-      <select class="tipo-attivita">
-        <option value="" disabled ${!period.tipoAttivita ? "selected" : ""} hidden>${t.placeholderTipoAttivita}</option>
-        <option value="adult" ${period.tipoAttivita === "adult" ? "selected" : ""}>${t.tipoAdult}</option>
-        <option value="inf" ${period.tipoAttivita === "inf" ? "selected" : ""}>${t.tipoInfantile}</option>
-        <option value="som" ${period.tipoAttivita === "som" ? "selected" : ""}>${t.tipoSomatico}</option>
-        <option value="ric" ${period.tipoAttivita === "ric" ? "selected" : ""}>${t.tipoRicerca}</option>
-        <option value="studio" ${period.tipoAttivita === "studio" ? "selected" : ""}>${t.tipoStudio}</option>
-      </select>
-    </label>
-    <label class="categoria-label" style="${period.tipoAttivita === 'adult' ? '' : 'display:none'}">
-      <select class="categoria-attivita">
-        <option value="" disabled ${!period.categoria ? "selected" : ""} hidden>${t.placeholderCategoria}</option>
-        <option value="ospA" ${period.categoria === "ospA" ? "selected" : ""}>${t.catAOsp}</option>
-        <option value="ambA" ${period.categoria === "ambA" ? "selected" : ""}>${t.catAAmb}</option>
-        <option value="ospB" ${period.categoria === "ospB" ? "selected" : ""}>${t.catBOsp}</option>
-        <option value="ambB" ${period.categoria === "ambB" ? "selected" : ""}>${t.catBAmb}</option>
-        <option value="ospC" ${period.categoria === "ospC" ? "selected" : ""}>${t.catCOsp}</option>
-        <option value="ambC" ${period.categoria === "ambC" ? "selected" : ""}>${t.catCAmb}</option>
-        <option value="studio" ${period.categoria === "studio" ? "selected" : ""}>${t.tipoStudio}</option>
-        <option value="formAppr" ${period.categoria === "formAppr" ? "selected" : ""}>${t.catFormApprof}</option>
-      </select>
-    </label>
-    <label>
-      <input type="number"
-        min="0"
-        max="100"
-        class="mesi"
-        placeholder="${t.mesiPlaceholder}"
-        value="${period.mesi || ''}">
-      <span class="input-error" style="display:none;color:#dc3545;font-size:0.98em;margin-top:2px"></span>
-    </label>
-    <label>
-      <input type="number"
-        min="0"
-        max="100"
-        class="pensum"
-        placeholder="${t.pensumPlaceholder}"
-        value="${period.pensum || ''}">
-      <span class="input-error" style="display:none;color:#dc3545;font-size:0.98em;margin-top:2px"></span>
-    </label>
-  `;
-  container.appendChild(div);
-});
+    periodsData.forEach((period, idx) => {
+      const div = document.createElement('div');
+      div.className = 'periodo';
+      div.dataset.idx = idx; // fondamentale per event delegation
+      div.innerHTML = `
+        <button type="button" class="remove-period-btn" title="Rimuovi periodo">✖</button>
+        <label>
+          <select class="tipo-attivita">
+            <option value="" disabled ${!period.tipoAttivita ? "selected" : ""} hidden>${t.placeholderTipoAttivita}</option>
+            <option value="adult" ${period.tipoAttivita === "adult" ? "selected" : ""}>${t.tipoAdult}</option>
+            <option value="inf" ${period.tipoAttivita === "inf" ? "selected" : ""}>${t.tipoInfantile}</option>
+            <option value="som" ${period.tipoAttivita === "som" ? "selected" : ""}>${t.tipoSomatico}</option>
+            <option value="ric" ${period.tipoAttivita === "ric" ? "selected" : ""}>${t.tipoRicerca}</option>
+            <option value="studio" ${period.tipoAttivita === "studio" ? "selected" : ""}>${t.tipoStudio}</option>
+          </select>
+        </label>
+        <label class="categoria-label" style="${period.tipoAttivita === 'adult' ? '' : 'display:none'}">
+          <select class="categoria-attivita">
+            <option value="" disabled ${!period.categoria ? "selected" : ""} hidden>${t.placeholderCategoria}</option>
+            <option value="ospA" ${period.categoria === "ospA" ? "selected" : ""}>${t.catAOsp}</option>
+            <option value="ambA" ${period.categoria === "ambA" ? "selected" : ""}>${t.catAAmb}</option>
+            <option value="ospB" ${period.categoria === "ospB" ? "selected" : ""}>${t.catBOsp}</option>
+            <option value="ambB" ${period.categoria === "ambB" ? "selected" : ""}>${t.catBAmb}</option>
+            <option value="ospC" ${period.categoria === "ospC" ? "selected" : ""}>${t.catCOsp}</option>
+            <option value="ambC" ${period.categoria === "ambC" ? "selected" : ""}>${t.catCAmb}</option>
+            <option value="studio" ${period.categoria === "studio" ? "selected" : ""}>${t.tipoStudio}</option>
+            <option value="formAppr" ${period.categoria === "formAppr" ? "selected" : ""}>${t.catFormApprof}</option>
+          </select>
+        </label>
+        <label>
+          <input type="number" min="0" max="100" class="mesi" placeholder="${t.mesiPlaceholder}" value="${period.mesi || ''}">
+          <span class="input-error" style="display:none;color:#dc3545;font-size:0.98em;margin-top:2px"></span>
+        </label>
+        <label>
+          <input type="number" min="0" max="100" class="pensum" placeholder="${t.pensumPlaceholder}" value="${period.pensum || ''}">
+          <span class="input-error" style="display:none;color:#dc3545;font-size:0.98em;margin-top:2px"></span>
+        </label>
+      `;
+      container.appendChild(div);
+    });
+  }
 
+  // Event delegation sul container periodi
+  const periodiContainer = document.getElementById('periodi');
 
-    // Listener rimozione periodo e cambio categoria
-    document.querySelectorAll('.remove-period-btn').forEach(btn => {
-      btn.onclick = (e) => {
-        const idx = +btn.dataset.idx;
-        periodsData.splice(idx, 1);
-        renderPeriods();
+  periodiContainer.addEventListener('click', (e) => {
+    if (e.target.classList.contains('remove-period-btn')) {
+      const idx = +e.target.closest('.periodo').dataset.idx;
+      periodsData.splice(idx, 1);
+      renderPeriods();
+    }
+  });
+
+  periodiContainer.addEventListener('change', (e) => {
+    const periodoDiv = e.target.closest('.periodo');
+    if (!periodoDiv) return;
+    const idx = +periodoDiv.dataset.idx;
+
+    if (e.target.classList.contains('tipo-attivita')) {
+      periodsData[idx].tipoAttivita = e.target.value;
+      // Se cambia tipoAttivita, resetta categoria se non è più 'adult'
+      if (e.target.value !== 'adult') periodsData[idx].categoria = '';
+      renderPeriods();
+    }
+
+    if (e.target.classList.contains('categoria-attivita')) {
+      periodsData[idx].categoria = e.target.value;
+      renderPeriods();
+    }
+  });
+
+  periodiContainer.addEventListener('input', (e) => {
+    const periodoDiv = e.target.closest('.periodo');
+    if (!periodoDiv) return;
+    const idx = +periodoDiv.dataset.idx;
+
+    const errorSpan = e.target.parentElement.querySelector('.input-error');
+    let v = parseInt(e.target.value, 10);
+
+    if (e.target.classList.contains('mesi') || e.target.classList.contains('pensum')) {
+      if (isNaN(v) || v < 1 || v > 100) {
+        errorSpan.textContent = 'Value must be between 1 and 100';
+        errorSpan.style.display = 'block';
+        e.target.classList.add('error');
+        if (e.target.classList.contains('mesi')) periodsData[idx].mesi = '';
+        else if (e.target.classList.contains('pensum')) periodsData[idx].pensum = '';
+      } else {
+        errorSpan.textContent = '';
+        errorSpan.style.display = 'none';
+        e.target.classList.remove('error');
+        if (e.target.classList.contains('mesi')) periodsData[idx].mesi = v;
+        else if (e.target.classList.contains('pensum')) periodsData[idx].pensum = v;
       }
-    });
-document.querySelectorAll('.tipo-attivita').forEach((sel, i) => {
-  sel.onchange = function() {
-    periodsData[i].tipoAttivita = sel.value; // qui è sempre "adult", "som", ecc
-    renderPeriods();
-  }
-});
-document.querySelectorAll('.categoria-attivita').forEach((sel, i) => {
-  sel.onchange = function() {
-    periodsData[i].categoria = sel.value; // qui è "ospA", "ambB", ecc
-    renderPeriods();
-  }
-});
-document.querySelectorAll('.mesi').forEach((inp, i) => {
-  const errorSpan = inp.parentElement.querySelector('.input-error');
-  inp.oninput = function() {
-    let v = parseInt(inp.value, 10);
-    if (isNaN(v) || v < 1 || v > 100) {
-      errorSpan.textContent = 'Value must be between 1 and 100';
-      errorSpan.style.display = 'block';
-      inp.classList.add('error');        // AGGIUNGI QUESTA RIGA
-      periodsData[i].mesi = '';
-    } else {
-      errorSpan.textContent = '';
-      errorSpan.style.display = 'none';
-      inp.classList.remove('error');     // E questa va bene così
-      periodsData[i].mesi = v;
     }
-  }
-});
+  });
 
-document.querySelectorAll('.pensum').forEach((inp, i) => {
-  const errorSpan = inp.parentElement.querySelector('.input-error');
-  inp.oninput = function() {
-    let v = parseInt(inp.value, 10);
-    if (isNaN(v) || v < 1 || v > 100) {
-      errorSpan.textContent = 'Value must be between 1 and 100';
-      errorSpan.style.display = 'block';
-      inp.classList.add('error');        // AGGIUNGI QUESTA RIGA
-      periodsData[i].pensum = '';
-    } else {
-      errorSpan.textContent = '';
-      errorSpan.style.display = 'none';
-      inp.classList.remove('error');     // E questa va bene così
-      periodsData[i].pensum = v;
-    }
-  }
-});
-
-
-  }
-
-  // --- Listener aggiunta periodo ---
   document.getElementById('addPeriodBtn').onclick = () => {
-    periodsData.push({
-      tipoAttivita: '',
-      categoria: '',
-      mesi: '',
-      pensum: ''
-    });
+    periodsData.push({ tipoAttivita: '', categoria: '', mesi: '', pensum: '' });
     renderPeriods();
   };
 
-  // --- Listener clear/reset ---
   document.getElementById('clearButton').onclick = () => {
-    // Resetta tutti i dati e il form senza reload
     periodsData = [];
     renderPeriods();
     // Reset altri campi
@@ -707,29 +756,33 @@ document.querySelectorAll('.pensum').forEach((inp, i) => {
     document.getElementById('risultato').innerHTML = '';
   };
 
-  // --- Calcolo avanzamento (da implementare) ---
-document.getElementById('calcBtn').onclick = function() {
-  // Validazione
+
+  // --- Calcolo avanzamento ---
+document.getElementById('calcBtn').onclick = calculateResult;
+
+function calculateResult() {
+const lang = getCurrentLang();
+const t = translations[lang];
   let err = '';
   for(let i=0; i<periodsData.length; ++i) {
     const p = periodsData[i];
     if (!p.tipoAttivita) err += `Periodo ${i+1}: tipo mancante<br>`;
-    if (p.tipoAttivita === "adult" && !p.categoria) err += `Periodo ${i+1}: categoria mancante<br>`;
+if (p.tipoAttivita === "adult" && !p.categoria)
+  err += tReplace(t.categoryMissing, { p: i+1, cat: "" }) + "<br>";
     if (!p.mesi) err += `Periodo ${i+1}: mesi mancanti<br>`;
     if (!p.pensum && p.pensum !== 0) err += `Periodo ${i+1}: pensum mancante<br>`;
   }
   if (err) {
-    document.getElementById('risultato').innerHTML = '<b>Errori nel form:</b><br>' + err;
+document.getElementById('risultato').innerHTML = `<b>${t.formErrors}</b><br>` + err;
     return;
   }
 
-  // --- Calcolo mesi per categoria
+  // 2) Calcolo mesi per categoria
   const cat = {
     ospA: 0, ospB: 0, ospC: 0,
     ambA: 0, ambB: 0, ambC: 0,
     studio: 0, som: 0, infanzia: 0, ricerca: 0
   };
-  let tot = 0;
 
   periodsData.forEach(p => {
     const mesi = parseFloat(p.mesi) || 0;
@@ -749,88 +802,180 @@ document.getElementById('calcBtn').onclick = function() {
         case "ambB": cat.ambB += mesiEff; break;
         case "ambC": cat.ambC += mesiEff; break;
         case "studio": cat.studio += mesiEff; break;
-        // Ignora "formAppr" per ora, oppure mappa dove serve.
       }
     }
   });
 
-  // --- Regole calcolo totali
-  const sommaOsp = cat.ospA + cat.ospB + cat.ospC;
-  const sommaAmb = cat.ambA + cat.ambB + cat.ambC + cat.studio;
-  const extra = cat.infanzia + cat.ricerca;
-  const extraIncludibili = (extra > 0 && (sommaOsp + sommaAmb) < 60)
-    ? Math.min(extra, 12, 60 - (sommaOsp + sommaAmb))
-    : 0;
-  const totSom = Math.min(12, cat.som);
-  tot = Math.min(36, sommaOsp) + Math.min(36, sommaAmb) + totSom + extraIncludibili;
+  // Limiti massimi per categoria
+  const ospA = Math.min(cat.ospA, 36);
+  const ospB = Math.min(cat.ospB, 24);
+  const ospC = Math.min(cat.ospC, 24);
 
-  // --- Visualizzazione barra
-  const bar = x => x / 72 * 100;
+  const ambA = Math.min(cat.ambA, 36);
+  const ambB = Math.min(cat.ambB, 24);
+  const ambC = Math.min(cat.ambC, 24);
+
+  const studio = cat.studio;
+
+  // Somatico fisso a massimo 12 mesi (non tagliabile)
+  const somatico = Math.min(cat.som, 12);
+
+  const extra = cat.infanzia + cat.ricerca;
+  let extraValido = Math.min(extra, 12);
+
+  // Totali reali (non tagliati)
+  const totaleOsp = cat.ospA + cat.ospB + cat.ospC;
+  const totaleAmb = cat.ambA + cat.ambB + cat.ambC + cat.studio;
+
+  // Limita a 36 mesi ciascuno
+  let ospedalieroValido = Math.min(totaleOsp, 36);
+  let ambulatorialeValido = Math.min(totaleAmb, 36);
+
+  // Limita totale psichiatria+extra a 60, somatico resta fuori dal taglio
+  let totalePsichiatriaExtra = ospedalieroValido + ambulatorialeValido + extraValido;
+
+  if (totalePsichiatriaExtra > 60) {
+    let eccesso = totalePsichiatriaExtra - 60;
+
+    // Taglia extra
+    if (extraValido >= eccesso) {
+      extraValido -= eccesso;
+      eccesso = 0;
+    } else {
+      eccesso -= extraValido;
+      extraValido = 0;
+    }
+
+    // Taglia ambulatoriale
+    if (eccesso > 0) {
+      if (ambulatorialeValido >= eccesso) {
+        ambulatorialeValido -= eccesso;
+        eccesso = 0;
+      } else {
+        eccesso -= ambulatorialeValido;
+        ambulatorialeValido = 0;
+      }
+    }
+
+    // Taglia ospedaliero
+    if (eccesso > 0) {
+      ospedalieroValido -= eccesso;
+      if (ospedalieroValido < 0) ospedalieroValido = 0;
+    }
+  }
+
+  // Calcolo proporzionale per ospedaliero
+  const totaleOspPreTaglio = ospA + ospB + ospC;
+  let ospAValido = 0, ospBValido = 0, ospCValido = 0;
+  if (totaleOspPreTaglio > 0) {
+    const ratioOsp = ospedalieroValido / totaleOspPreTaglio;
+    ospAValido = ospA * ratioOsp;
+    ospBValido = ospB * ratioOsp;
+    ospCValido = ospC * ratioOsp;
+  }
+
+  // Calcolo proporzionale per ambulatoriale
+  const totaleAmbPreTaglio = ambA + ambB + ambC + studio;
+  let ambAValido = 0, ambBValido = 0, ambCValido = 0, studioValido = 0;
+  if (totaleAmbPreTaglio > 0) {
+    const ratioAmb = ambulatorialeValido / totaleAmbPreTaglio;
+    ambAValido = ambA * ratioAmb;
+    ambBValido = ambB * ratioAmb;
+    ambCValido = ambC * ratioAmb;
+    studioValido = studio * ratioAmb;
+  }
+
+  // Calcolo totale somma (incluso somatico fisso)
+  const totale = somatico + ospedalieroValido + ambulatorialeValido + extraValido;
+
+  // Visualizzazione barra
+  const bar = x => (x / 72) * 100;
   let barraHTML = `<div class="stacked-bar-container" style="display:flex;height:20px;width:100%;border-radius:10px;overflow:hidden;margin-bottom:12px">`;
-  if (cat.ospA > 0) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(Math.min(cat.ospA, 36))}%; background:darkgreen;" title="Ospedaliero A"></div>`;
-  if (cat.ospB > 0) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(Math.min(cat.ospB, 24))}%; background:#6fcf97;" title="Ospedaliero B"></div>`;
-  if (cat.ospC > 0) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(Math.min(cat.ospC, 24))}%; background:#a8e6cf;" title="Ospedaliero C"></div>`;
-  if (cat.ambA > 0) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(Math.min(cat.ambA, 36))}%; background:darkblue;" title="Ambulatoriale A"></div>`;
-  if (cat.ambB > 0) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(Math.min(cat.ambB, 24))}%; background:#5dade2;" title="Ambulatoriale B"></div>`;
-  if (cat.ambC > 0) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(Math.min(cat.ambC, 24))}%; background:#aed6f1;" title="Ambulatoriale C"></div>`;
-  if (cat.studio > 0) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(Math.min(cat.studio, 12))}%; background:#d4e6f1;" title="Studio Medico"></div>`;
-  if (cat.som > 0) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(totSom)}%; background:gold;" title="Somatico"></div>`;
-  if (extraIncludibili > 0) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(extraIncludibili)}%; background:violet;" title="Extra"></div>`;
-  if (tot < 72) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(72 - tot)}%; background:#ccc;" title="Mesi mancanti"></div>`;
+
+  if (ospAValido > 0) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(ospAValido)}%; background:darkgreen;" title="Ospedaliero A"></div>`;
+  if (ospBValido > 0) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(ospBValido)}%; background:#6fcf97;" title="Ospedaliero B"></div>`;
+  if (ospCValido > 0) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(ospCValido)}%; background:#a8e6cf;" title="Ospedaliero C"></div>`;
+
+  if (ambAValido > 0) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(ambAValido)}%; background:darkblue;" title="Ambulatoriale A"></div>`;
+  if (ambBValido > 0) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(ambBValido)}%; background:#5dade2;" title="Ambulatoriale B"></div>`;
+  if (ambCValido > 0) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(ambCValido)}%; background:#aed6f1;" title="Ambulatoriale C"></div>`;
+
+  if (studioValido > 0) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(studioValido)}%; background:#d4e6f1;" title="Studio Medico"></div>`;
+
+  if (somatico > 0) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(somatico)}%; background:gold;" title="Somatico"></div>`;
+
+  if (extraValido > 0) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(extraValido)}%; background:violet;" title="Extra"></div>`;
+
+  if (totale < 72) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(72 - totale)}%; background:#ccc;" title="Mesi mancanti"></div>`;
+
   barraHTML += `</div>`;
 
-  // --- Legenda
-let legenda = `<div class="legenda" style="margin-bottom:16px">`;
-if (cat.ospA > 0) legenda += `<span style="background:darkgreen;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("ospA")}</span>`;
-if (cat.ospB > 0) legenda += `<span style="background:#6fcf97;color:black;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("ospB")}</span>`;
-if (cat.ospC > 0) legenda += `<span style="background:#a8e6cf;color:black;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("ospC")}</span>`;
-if (cat.ambA > 0) legenda += `<span style="background:darkblue;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("ambA")}</span>`;
-if (cat.ambB > 0) legenda += `<span style="background:#5dade2;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("ambB")}</span>`;
-if (cat.ambC > 0) legenda += `<span style="background:#aed6f1;color:black;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("ambC")}</span>`;
-if (cat.studio > 0) legenda += `<span style="background:#d4e6f1;color:black;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("studio")}</span>`;
-if (cat.som > 0) legenda += `<span style="background:gold;color:black;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("som")}</span>`;
-if (extraIncludibili > 0) legenda += `<span style="background:violet;color:black;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("extra")}</span>`;
-if (tot < 72) legenda += `<span style="background:#ccc;color:black;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("missing")}</span>`;
-legenda += `</div>`;
+  // Legenda
+  let legenda = `<div class="legenda" style="margin-bottom:16px">`;
+  if (ospA > 0) legenda += `<span style="background:darkgreen;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("ospA")}</span>`;
+  if (ospB > 0) legenda += `<span style="background:#6fcf97;color:black;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("ospB")}</span>`;
+  if (ospC > 0) legenda += `<span style="background:#a8e6cf;color:black;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("ospC")}</span>`;
+  if (ambA > 0) legenda += `<span style="background:darkblue;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("ambA")}</span>`;
+  if (ambB > 0) legenda += `<span style="background:#5dade2;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("ambB")}</span>`;
+  if (ambC > 0) legenda += `<span style="background:#aed6f1;color:black;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("ambC")}</span>`;
+  if (studio > 0) legenda += `<span style="background:#d4e6f1;color:black;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("studio")}</span>`;
+  if (somatico > 0) legenda += `<span style="background:gold;color:black;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("som")}</span>`;
+  if (extraValido > 0) legenda += `<span style="background:violet;color:black;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("extra")}</span>`;
+  if (totale < 72) legenda += `<span style="background:#ccc;color:black;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("missing")}</span>`;
+  legenda += `</div>`;
 
-
-function getLegendText(key) {
-  const lang = getCurrentLang();
-  const t = translations[lang];
-  switch(key) {
-    case "ospA": return t.catAOsp;
-    case "ospB": return t.catBOsp;
-    case "ospC": return t.catCOsp;
-    case "ambA": return t.catAAmb;
-    case "ambB": return t.catBAmb;
-    case "ambC": return t.catCAmb;
-    case "studio": return t.tipoStudio;
-    case "som": return t.tipoSomatico;
-    case "extra": return lang === "de" ? "Extra" : (lang === "fr" ? "Extra" : "Extra");
-    case "missing": return lang === "de" ? "Fehlende Monate" : (lang === "fr" ? "Mois manquants" : "Mesi mancanti");
-    default: return key;
+  // Funzione legenda
+  function getLegendText(key) {
+    const lang = getCurrentLang();
+    const t = translations[lang];
+    switch(key) {
+      case "ospA": return t.catAOsp;
+      case "ospB": return t.catBOsp;
+      case "ospC": return t.catCOsp;
+      case "ambA": return t.catAAmb;
+      case "ambB": return t.catBAmb;
+      case "ambC": return t.catCAmb;
+      case "studio": return t.tipoStudio;
+      case "som": return t.tipoSomatico;
+      case "extra": return lang === "de" ? "Extra" : (lang === "fr" ? "Extra" : "Extra");
+      case "missing": return lang === "de" ? "Fehlende Monate" : (lang === "fr" ? "Mois manquants" : "Mesi mancanti");
+      default: return key;
+    }
   }
-}
 
+  // Report mancanze ed eccedenze
+  function generaReport(cat, ospA, ambA, somatico, totaleOsp, totaleAmb, extra, ospedalieroValido, ambulatorialeValido, extraValido) {
+    let report = `<h3 style="color:coral">${t.gapsAndExcess}</h3><ul>`;
 
-  // --- Report mancanze
-  function generaReport(cat, sommaOsp, sommaAmb, totSom, extra) {
-    let report = '<h3 style="color:coral">Mancanze ed eccedenze</h3><ul>';
-    if (cat.ospA < 12) report += '<li>Mancano mesi in Ospedaliero categoria A (minimo 12)</li>';
-    if (sommaOsp < 24) report += '<li>Meno di 24 mesi totali di attività ospedaliera</li>';
-    if (cat.ambA < 12) report += '<li>Mancano mesi in Ambulatoriale categoria A (minimo 12)</li>';
-    if (sommaAmb < 24) report += '<li>Meno di 24 mesi totali di attività ambulatoriale/studio medico</li>';
-    if (totSom < 12) report += '<li>Meno di 12 mesi di attività somatica</li>';
-    if (sommaOsp > 36) report += `<li>Hai ${Math.round(sommaOsp - 36)} mesi ospedalieri che non possono essere conteggiati (max 36)</li>`;
-    if (sommaAmb > 36) report += `<li>Hai ${Math.round(sommaAmb - 36)} mesi ambulatoriali/studio medico che non possono essere conteggiati (max 36)</li>`;
-    if (extra > 12) report += `<li>Hai ${Math.round(extra - 12)} mesi in ricerca/infanzia che non possono essere conteggiati (max 12)</li>`;
+    if (ospA < 12) report += `<li>${tReplace(t.missingOspA, { n: Math.round(12 - ospA) })}</li>`;
+
+    if (totaleOsp < 24) report += `<li>${tReplace(t.missingTotOsp, { n: Math.round(24 - totaleOsp) })}</li>`;
+
+    if (ambA < 12) report += `<li>${tReplace(t.missingAmbA, { n: Math.round(12 - ambA) })}</li>`;
+
+    if (totaleAmb < 24) report += `<li>${tReplace(t.missingTotAmb, { n: Math.round(24 - totaleAmb) })}</li>`;
+
+    if (somatico < 12) report += `<li>${tReplace(t.missingSom, { n: Math.round(12 - somatico) })}</li>`;
+
+    if (totaleOsp > 36) report += `<li>${tReplace(t.tooManyOsp, { n: Math.round(totaleOsp - 36) })}</li>`;
+
+    if (totaleAmb > 36) report += `<li>${tReplace(t.tooManyAmb, { n: Math.round(totaleAmb - 36) })}</li>`;
+
+    if (extra > 12) report += `<li>${tReplace(t.tooManyExtra, { n: Math.round(extra - 12) })}</li>`;
+
+    const totalePsichiatriaExtra = ospedalieroValido + ambulatorialeValido + extraValido;
+    if (totalePsichiatriaExtra < (ospedalieroValido + ambulatorialeValido + extra)) {
+      const taglio = Math.round((ospedalieroValido + ambulatorialeValido + extra) - totalePsichiatriaExtra);
+      report += `<li>${tReplace(t.excludedByLimit, { n: taglio })}</li>`;
+    }
+
     report += '</ul>';
     return report;
   }
 
-  // --- Rendering risultato
-  document.getElementById("risultato").innerHTML =
-    barraHTML + legenda + `<p><strong>${tot.toFixed(1)} / 72 mesi validi</strong></p>` + generaReport(cat, sommaOsp, sommaAmb, totSom, extra);
+  // Stampa risultato
+  document.getElementById("risultato").innerHTML = barraHTML + legenda + `<p><strong>${tReplace(t.validMonths, { v: totale.toFixed(1) })}</strong></p>`
+ + generaReport(cat, ospA, ambA, somatico, totaleOsp, totaleAmb, extra, ospedalieroValido, ambulatorialeValido, extraValido);
 };
 
 
@@ -864,25 +1009,39 @@ function getLegendText(key) {
     };
   });
 
-}); // fine DOMContentLoaded
+  document.getElementById('languageSwitcher').addEventListener('change', e => {
+    const lang = e.target.value;
+    localStorage.setItem('selectedLanguage', lang);
+    updateLanguage(lang);
+    document.getElementById('languageSwitcher').value = lang;
+  });
 
+  const savedLang = localStorage.getItem('selectedLanguage') || 'de';
+  updateLanguage(savedLang);
+  document.getElementById('languageSwitcher').value = savedLang;
+
+  renderPeriods();
+});
 
 </script>
 <footer style="text-align:center; font-size:0.85em; color:#555; padding:20px; margin-top:40px;">
-  <p>
-    © 2025 SVPA-ASMAP-ASAP — This educational tool is protected by Swiss copyright law (Art. 2 URG, SR 231.1).<br>
-    Licensed under 
-    <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noopener noreferrer">
-      Creative Commons BY-NC-ND 4.0
-    </a>.
-    <br>
-    Reuse, redistribution, commercial use, or modification is not permitted without express authorization.
+<p>
+    The code was created and licensed to the association by Dr. Davide Zani. For feedback or permission requests, contact <a href="mailto:info@svpa-asmap.ch">info@svpa-asmap.ch</a>. Reuse, redistribution, commercial use, or modification is not permitted without express authorization. 
   </p>
-  <p style="margin-top:10px;">
-    <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noopener noreferrer">
-      <img src="https://licensebuttons.net/l/by-nc-nd/4.0/88x31.png" alt="CC BY-NC-ND 4.0" style="border:none;">
-    </a>
-  </p>
+<p>
+  © 2025 
+  <a href="https://svpa-asmap.ch" target="_blank" rel="noopener noreferrer">SVPA-ASMAP-ASAP</a>
+  — This educational tool is protected by Swiss copyright law (Art. 2 URG, SR 231.1). Licensed under 
+  <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noopener noreferrer">
+    Creative Commons BY-NC-ND 4.0
+  </a>.
+</p>
+<p>
+  <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noopener noreferrer">
+    <img src="https://licensebuttons.net/l/by-nc-nd/4.0/88x31.png" alt="CC BY-NC-ND 4.0" style="border:none;">
+  </a>
+</p>
+
 </footer>
 </body>
 </html>
