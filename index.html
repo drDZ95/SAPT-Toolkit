@@ -236,6 +236,11 @@
   border: 2.5px solid #e63946 !important;
   background-color: #fff0f0 !important;
 }
+.errore-select {
+  border: 2px solid #e63946 !important;
+  background: #fff0f0 !important;
+}
+
   </style>
 </head>
 
@@ -567,6 +572,16 @@ categoryMissing: "Periodo {p}: categoria {cat} mancante"
 }
 };
 
+const errorMessages = {
+  it: "Uno o più periodi di lavoro inseriti non sono completi o corretti.",
+  de: "Ein oder mehrere eingegebene Arbeitsperioden sind unvollständig oder fehlerhaft.",
+  fr: "Une ou plusieurs périodes de travail saisies sont incomplètes ou incorrectes.",
+  it_select: "Devi rispondere a tutte le domande obbligatorie.",
+  de_select: "Bitte beantworte alle Pflichtfragen.",
+  fr_select: "Veuillez répondre à toutes les questions obligatoires."
+};
+
+
 function tReplace(str, data) {
   return str.replace(/{(\w+)}/g, (_, k) => data[k]);
 }
@@ -789,6 +804,26 @@ function calculateResult() {
   // Mostra messaggio unico se c’è almeno un errore
   if (!tuttoOK) {
     document.getElementById('errore').textContent = errorMessages[lang];
+    document.getElementById('risultato').innerHTML = '';
+    return;
+  } else {
+    document.getElementById('errore').textContent = '';
+  }
+
+  let erroreSelect = false;
+  ['cambioCentro', 'partecipazioneSSPP', 'supChange', 'supHrsChange'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      if (el.selectedIndex === 0) {
+        el.classList.add('errore-select');
+        erroreSelect = true;
+      } else {
+        el.classList.remove('errore-select');
+      }
+    }
+  });
+  if (erroreSelect) {
+    document.getElementById('errore').textContent = errorMessages[lang + '_select'];
     document.getElementById('risultato').innerHTML = '';
     return;
   } else {
