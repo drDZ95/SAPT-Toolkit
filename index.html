@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 
-<! /*********************************************************************
+<!--
+*********************************************************************
  * SAPT-Toolkit Progress Calculator
  * 
  * © 2025 SVPA-ASMAP-ASAP (Swiss Association of Psychiatric Trainees)
@@ -9,7 +10,7 @@
  * association and its members. Redistribution, commercial use,
  * or modification is not permitted without explicit authorization.
  *
- * This tool is provided “as is”, without warranty of any kind.
+ * This tool is provided "as is", without warranty of any kind.
  * It is based on the interpretation of ISFM-FMH official training
  * programs. The association and its members do not accept any
  * liability for errors or omissions in the calculations.
@@ -22,1079 +23,1230 @@
  *  - Modern UI for clarity and usability
  *
  * For feedback or permission requests, contact info@svpa-asmap.ch
- *********************************************************************/>
+ *********************************************************************
+-->
 
 <html lang="de">
 
-<head>
-  <meta charset="UTF-8">
-  <title id="pageTitle">Berechnung des Weiterbildungsfortschritts</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 20px;
-      max-width: 900px;
-      margin: auto;
-      background: linear-gradient(to bottom, #e3d9f8 0%, #ede7fa 100%);
-      position: relative;
-    }
-
-    #topBar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 14px 18px 12px 18px;
-      background: transparent;
-      position: relative;
-      flex-wrap: nowrap;
-      gap: 0;
-    }
-
-    #logo {
-      max-height: 120px;
-      width: auto;
-      height: auto;
-      display: block;
-    }
-
-    .lang-switcher {
-      background-color: #007bff;
-      color: white;
-      border-radius: 8px;
-      padding: 8px 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 1em;
-      cursor: pointer;
-      user-select: none;
-      position: relative;
-      min-width: 90px;
-      box-shadow: 0 2px 6px rgba(70,40,90,0.06);
-      transition: background .18s;
-    }
-    .lang-switcher:hover { background-color: #0056b3; }
-    .lang-switcher span { pointer-events: none; }
-    .lang-switcher::before { content: '🌐'; margin-right: 7px; }
-    .lang-switcher::after {
-      content: '';
-      margin-left: 7px;
-      border-left: 4px solid transparent;
-      border-right: 4px solid transparent;
-      border-top: 5px solid white;
-    }
-    select#languageSwitcher {
-      opacity: 0;
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      left: 0;
-      top: 0;
-      cursor: pointer;
-    }
-
-    h1 {
-      color: #352682;
-      font-weight: bold;
-      text-align: center;
-    }
-    h2 {
-      color: #352682;
-      text-align: center;
-    }
-
-    .section, .periodo {
-      background: #fff;
-      border: 1px solid #dad4f3;
-      border-radius: 18px;
-      box-shadow: 0 2px 8px rgba(80,60,120,0.07);
-      padding: 15px;
-      margin-bottom: 20px;
-    }
-
-    .periodo {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px 20px;
-      align-items: flex-start;
-      position: relative;
-    }
-    .periodo label {
-      display: flex;
-      align-items: center;
-      margin: 8px 0;
-      gap: 10px;
-      flex: 1 1 200px;
-      min-width: 120px;
-    }
-    .categoria-label { display: none }
-
-    select, input, datalist {
-      flex-grow: 1;
-      padding: 5px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      min-width: 0;
-      font-size: 1em;
-    }
-  input.error {
-    border: 2px solid #dc3545;
-  }
-
-    button, .lang-switcher {
-      background: #007bff;
-      color: #fff;
-      border-radius: 8px;
-      border: none;
-      padding: 10px 20px;
-      font-size: 1em;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-    button:hover, .lang-switcher:hover {
-      background: #0056b3;
-    }
-    .centered-button { text-align: center }
-
-    .small-title { font-size: 1em; margin: 10px 0 }
-
-    .checkbox-group {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 8px
-    }
-    .checkbox-group label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      justify-content: flex-start;
-      text-align: left;
-    }
-
-.remove-period-btn {
-  position: absolute;
-  top: -18px;  
-  right: -18px;
-  background: #dc3545;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  padding: 0;
-  width: 38px;
-  height: 38px;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 1em;
-  z-index: 2;
-  box-shadow: 0 2px 10px rgba(80,40,60,0.10);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background .2s;
-}
-.remove-period-btn:hover { background: #b02a37; }
+  <head>
+    <meta charset="UTF-8">
+    <title id="pageTitle">Berechnung des Weiterbildungsfortschritts</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 
-    #clearButton {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background-color: #dc3545;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 15px;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-      font-size: 1.2em;
-    }
-    #clearButton:hover { background-color: #b02a37; }
+    <style>
+      body {
+        font-family: sans-serif;
+        padding: 20px;
+        max-width: 900px;
+        margin: auto;
+        background: linear-gradient(to bottom, #e3d9f8 0%, #ede7fa 100%);
+        position: relative;
+      }
 
-    #risultato {
-      background: #fff;
-      padding: 15px;
-      border-radius: 12px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      margin-top: 20px;
-      word-break: break-word;
-    }
+      #pdfExportBox {
+        padding: 44px 38px 48px 38px;
+        min-height: 900px;
+        min-width: 700px;
+        background: linear-gradient(135deg, #e3d9f8 0%, #ede7fa 100%);
+        border-radius: 32px;
+        box-shadow: 0 4px 28px rgba(60,40,90,0.10);
+        color: #352682;
+        font-family: 'Montserrat', sans-serif;
+      }
+    
 
-    @media (max-width: 800px) {
-      #topBar { padding: 10px 7px 7px 7px; }
-      #logo { max-width: 120px; }
-      .lang-switcher { min-width: 70px; font-size: 0.95em; padding: 8px 14px;}
-    }
-    @media (max-width: 450px) {
-      #logo { max-width: 72px; }
-      #topBar { padding: 5px 2px 2px 2px;}
-      .lang-switcher { font-size: 0.9em; padding: 8px 7px;}
-    }
-    .errore-periodo {
-  border: 2.5px solid #e63946 !important;
-  background-color: #fff0f0 !important;
-}
-.errore-select {
-  border: 2px solid #e63946 !important;
-  background: #fff0f0 !important;
-}
+      #topBar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 18px 12px 18px;
+        background: transparent;
+        position: relative;
+        flex-wrap: nowrap;
+        gap: 0;
+      }
 
-  </style>
-</head>
+      #logo {
+        max-height: 120px;
+        width: auto;
+        height: auto;
+        display: block;
+      }
 
-<body>
+      .lang-switcher {
+        background-color: #007bff;
+        color: white;
+        border-radius: 8px;
+        padding: 8px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1em;
+        cursor: pointer;
+        user-select: none;
+        position: relative;
+        min-width: 90px;
+        box-shadow: 0 2px 6px rgba(70,40,90,0.06);
+        transition: background .18s;
+      }
 
-<div id="topBar">
-  <img src="https://svpa-asmap.ch/wp-content/uploads/2024/01/logo-2.png" id="logo" alt="Logo SVPA-ASMAP-ASAP">
-  <div class="lang-switcher">
-    <span id="selected-lang">IT</span>
-    <select id="languageSwitcher">
-      <option value="de">DE</option>
-      <option value="fr">FR</option>
-      <option value="it">IT</option>
-    </select>
-  </div>
-</div>
+      .lang-switcher:hover { background-color: #0056b3; }
+      .lang-switcher span { pointer-events: none; }
+      .lang-switcher::before { content: '🌐'; margin-right: 7px; }
+      .lang-switcher::after {
+        content: '';
+        margin-left: 7px;
+        border-left: 4px solid transparent;
+        border-right: 4px solid transparent;
+        border-top: 5px solid white;
+      }
+      
+      select#languageSwitcher {
+        opacity: 0;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
+        cursor: pointer;
+      }
 
+      h1 {
+        color: #352682;
+        font-weight: bold;
+        text-align: center;
+      }
+      
+      h2 {
+        color: #352682;
+        text-align: center;
+      }
 
-<div id="headerContainer">
-  <h1 id="headerTitle">Berechnung des Weiterbildungsfortschritts</h1>
-  <h2 id="headerSubtitle" style="margin-top:-10px;">Psychiatrie und Psychotherapie bei Erwachsenen</h2>
-</div>
+      .section, .periodo {
+        background: #fff;
+        border: 1px solid #dad4f3;
+        border-radius: 18px;
+        box-shadow: 0 2px 8px rgba(80,60,120,0.07);
+        padding: 15px;
+        margin-bottom: 20px;
+      }
 
-<p id="disclaimer" style="text-align:center; font-size:0.9em; color:#666; max-width: 700px; margin: 10px auto 20px;"></p>
+      .periodo {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 20px;
+        align-items: flex-start;
+        position: relative;
+      }
+      
+      .periodo label {
+        display: flex;
+        align-items: center;
+        margin: 8px 0;
+        gap: 10px;
+        flex: 1 1 200px;
+        min-width: 120px;
+      }
+      
+      .categoria-label { display: none }
 
-<h2 id="workTitle"></h2>
+      select, input, datalist {
+        flex-grow: 1;
+        padding: 5px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        min-width: 0;
+        font-size: 1em;
+      }
+    
+      input.error {
+      border: 2px solid #dc3545;
+      }
 
-<div id="periodi"></div>
-<div class="centered-button">
-  <button id="addPeriodBtn"></button>
-</div>
-<br>
+      button, .lang-switcher {
+        background: #007bff;
+        color: #fff;
+        border-radius: 8px;
+        border: none;
+        padding: 10px 20px;
+        font-size: 1em;
+        cursor: pointer;
+        margin-top: 10px;
+      }
+      
+      button:hover, .lang-switcher:hover {
+        background: #0056b3;
+      }
+      .centered-button { text-align: center }
 
-<div id="DomcambioCentro" class="section">
-  <label for="cambioCentro"><span id="labelCambioCentro"></span>
-    <select id="cambioCentro">
-      <option value="" disabled selected hidden></option>
-      <option value="yes"></option>
-      <option value="no"></option>
-    </select>
-  </label>
-</div>
-<br><br>
+      .small-title { font-size: 1em; margin: 10px 0 }
 
+      .checkbox-group {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px
+      }
 
-<h2 id="creditsTitle"></h2>
+      .checkbox-group label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        justify-content: flex-start;
+        text-align: left;
+      }
 
-<div id="creditSectionTeorici" class="section">
-  <label for="creditiTeorici" id="labelTeorici"></label>
-<input type="number" id="creditiTeorici" min="0" max="500" placeholder="0">
-<span class="input-error" style="display:none;color:#dc3545;font-size:0.98em;margin-top:2px"></span>
-  <div class="small-title" id="introTitle"></div>
-  <div class="checkbox-group">
-    <label><input type="checkbox" id="corso2024"><span id="labelCorso2024"></span></label>
-    <label><input type="checkbox" id="corsoCog"><span id="labelCorsoCog"></span></label>
-    <label><input type="checkbox" id="corsoPsy"><span id="labelCorsoPsy"></span></label>
-    <label><input type="checkbox" id="corsoSis"><span id="labelCorsoSis"></span></label>
-  </div>
-</div>
-<div id="creditSectionPsy" class="section">
-  <label for="creditiPsy" id="labelPsy"></label>
-<input type="number" id="creditiPsy" min="0" max="500" placeholder="0">
-<span class="input-error" style="display:none;color:#dc3545;font-size:0.98em;margin-top:2px"></span>
-</div>
-<div id="creditSectionCong" class="section">
-  <label for="creditiCong" id="labelCong"></label>
-<input type="number" id="creditiCong" min="0" max="500" placeholder="0">
-<span class="input-error" style="display:none;color:#dc3545;font-size:0.98em;margin-top:2px"></span>
-<br><br>
-  <label for="partecipazioneSSPP"><span id="labelSSPP"></span>
-    <select id="partecipazioneSSPP">
-      <option value="" disabled selected hidden></option>
-      <option value="yes"></option>
-      <option value="no"></option>
-    </select>
-  </label>
-</div>
-
-<h2 id="supervisionTitle"></h2>
-
-<div id="supervisionSection" class="section">
-  <label for="supIPPB"><span id="labelSupIPPB"></span></label>
-<input type="number" id="supIPPB" min="0" max="500" placeholder="0">
-<span class="input-error" style="display:none;color:#dc3545;font-size:0.98em;margin-top:2px"></span>
-<br><br>
-  <label for="supWeiter"><span id="labelSupWeiter"></span></label>
-<input type="number" id="supWeiter" min="0" max="500" placeholder="0">
-<span class="input-error" style="display:none;color:#dc3545;font-size:0.98em;margin-top:2px"></span>
-</div>
-<div id="PsysupervisionSection" class="section">
-  <label for="supSingolo"><span id="labelSupSingolo"></span></label>
-<input type="number" id="supSingolo" min="0" max="500" placeholder="0">
-<span class="input-error" style="display:none;color:#dc3545;font-size:0.98em;margin-top:2px"></span>
-<br><br>
-  <label for="supGruppo"><span id="labelSupGruppo"></span></label>
-<input type="number" id="supGruppo" min="0" max="500" placeholder="0">
-<span class="input-error" style="display:none;color:#dc3545;font-size:0.98em;margin-top:2px"></span>
-<br><br>
-  <label for="supChange"><span id="labelSupChange"></span></label>
-  <select id="supChange" required>
-    <option value="" disabled selected hidden></option>
-    <option value="yes"></option>
-    <option value="no"></option>
-  </select><br><br>
-  <label for="supHrsChange"><span id="labelHrsChange"></span></label>
-  <select id="supHrsChange" required>
-    <option value="" disabled selected hidden></option>
-    <option value="yes"></option>
-    <option value="no"></option>
-  </select><br><br>
-</div>
-<div class="centered-button">
-  <button id="calcBtn"></button>
-</div>
-<h2 id="resultHeader"></h2>
-<div id="errore" style="color:#e63946;font-weight:bold;text-align:center;margin-bottom:18px;"></div>
-<div id="risultato"></div>
-<button id="clearButton">🗑️ Clear All</button>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-
-
-  const translations = { 
-     de: {
-pageTitle:'Berechnung des Ausbildungsfortschritts',
-headerTitle:'Berechnung des Ausbildungsfortschritts',
-headerSubtitle:'Psychiatrie und Psychotherapie bei Erwachsenen',
-disclaimer: 'Dieses Tool wird kostenlos angeboten von der Schweizerischen Vereinigung der Assistenzärztinnen und -ärzte in Psychiatrie (SVPA-ASMAP-ASAP). Das Tool basiert auf der Interpretation der Weiterbildungsprogramme des ISFM-FMH. Die Vereinigung und ihre Mitglieder übernehmen keine Verantwortung bei allfälligen Rechenfehlern. Es wird empfohlen, sich stets auf die offiziellen ISFM-FMH-Dokumente zu beziehen.',
-addPeriod:'➕ Periode hinzufügen',
-questionCambioCentro:'Art. 2.1.2: Während der Ausbildung gewechselt?',
-optNo:'Nein',
-optSi:'Ja',
-labelTeorici:'Theoretische Credits',
-introTitle:'Einführung in Modelle',
-labelCorso2024:'Kurs 2024',
-labelCorsoCog:'Kognitives Seminar',
-labelCorsoPsy:'Psychodynamischer Kurs',
-labelCorsoSis:'Systemischer Workshop',
-labelPsy:'Psychiatrie-Credits',
-labelCong:'Kongress-Credits',
-labelSSPP:'Teilnahme an SSPP',
-selectPrompt:'Auswählen...',
-optYes:'Ja',
-optNo2:'Nein',
-calcButton:'🧮 Fortschritt berechnen',
-resultTitle:'Ergebnis',
-labelSupIPPB:'Anzahl IPPB-Supervisionen tot.',
-labelSupWeiter:'Weiterbildungssupervisionen',
-labelSupSingolo:'Supervisionen Einzelsitzung',
-labelSupGruppo:'Supervisionen Gruppensitzung',
-labelSupChange:'Supervisor gewechselt?',
-labelHrsChange:'Mind. 100h Supervision?',
-supChangePrompt:'Auswählen...',
-supHrsPrompt:'Auswählen...',
-supChangeYes:'Ja',
-supChangeNo:'Nein',
-supHrsYes:'Ja',
-supHrsNo:'Nein',
-    placeholderTipoAttivita: 'Art der Tätigkeit auswählen',
-    tipoAdult: 'Psychiatrie und Psychotherapie Erwachsene',
-    tipoInfantile: 'Kinder- und Jugendpsychiatrie',
-    tipoSomatico: 'Somatisches Jahr',
-    tipoRicerca: 'Forschung',
-    tipoStudio: 'Arztpraxis',
-    placeholderCategoria: 'Kategorie auswählen',
-    catAOsp: 'A Stationär allgemein',
-    catAAmb: 'A Ambulant allgemein',
-    catBOsp: 'B Stationär allgemein',
-    catBAmb: 'B Ambulant allgemein',
-    catCOsp: 'C Stationär allgemein',
-    catCAmb: 'C Ambulant allgemein',
-    catFormApprof: 'Beliebige vertiefte Weiterbildungskategorie',
-    mesiPlaceholder: 'Anzahl Monate eingeben',
-    pensumPlaceholder: 'Pensum in % eingeben',
-        workTitle: "Arbeitstätigkeit",
-    creditsTitle: "Ausbildungscredits",
-    supervisionTitle: "Supervisionen",
-validMonths: "{v} / 72 gültige Monate",
-gapsAndExcess: "Fehlende und überschüssige Periode",
-formErrors: "Fehler im Formular:",
-    missingOspA: "Es fehlen {n} Monate in Kategorie A stationär (mindestens 12)",
-    missingTotOsp: "Es fehlen insgesamt {n} Monate Tätigkeit im stationären Bereich (mindestens 24)",
-    missingAmbA: "Es fehlen {n} Monate in Kategorie A ambulant (mindestens 12)",
-    missingTotAmb: "Es fehlen insgesamt {n} Monate Tätigkeit im ambulanten Bereich/Praxis (mind. 24)",
-    missingSom: "Es fehlen {n} Monate somatische Tätigkeit (mindestens 12)",
-    tooManyOsp: "Du hast {n} stationäre Monate, die nicht angerechnet werden können (maximal 36)",
-    tooManyAmb: "Du hast {n} ambulante/Praxis-Monate, die nicht angerechnet werden können (max 36)",
-    tooManyExtra: "Du hast {n} Monate Forschung/Kinderpsychiatrie, die nicht angerechnet werden können (max 12)",
-    excludedByLimit: "Aufgrund des Gesamtlimits von 60 Monaten für Psychiatrie und Extra wurden {n} Monate ausgeschlossen",
-categoryMissing: "Periode {p}: Kategorie {cat} fehlt"
-},
-
-      fr:{
-pageTitle:'Calcul de l’avancement de la formation',
-headerTitle:'Calcul de l’avancement de la formation',
-headerSubtitle:'Psychiatrie et psychothérapie des adultes',
-disclaimer: 'Cet outil est proposé gratuitement par l\'Association Suisse des Assistant·e·s en Psychiatrie (SVPA-ASMAP-ASAP). L\'outil est basé sur l\'interprétation des programmes de formation de l\'ISFM-FMH. L\'association et ses membres déclinent toute responsabilité en cas d\'erreurs de calcul. Il est recommandé de toujours se référer aux documents officiels de l\'ISFM-FMH.',
-addPeriod:'➕ Ajouter une période',
-questionCambioCentro:'Art. 2.1.2 : Avez-vous changé ?',
-optNo:'Non',
-optSi:'Oui',
-labelTeorici:'Crédits théoriques',
-introTitle:'Introduction modèles',
-labelCorso2024:'Cours 2024',
-labelCorsoCog:'Séminaire cognitif',
-labelCorsoPsy:'Cours psychodynamique',
-labelCorsoSis:'Atelier systémique',
-labelPsy:'Crédits psychiatrie',
-labelCong:'Crédits congrès',
-labelSSPP:'Participation SSPP',
-selectPrompt:'Sélectionner...',
-optYes:'Oui',
-optNo2:'Non',
-calcButton:'🧮 Calculer',
-resultTitle:'Résultat',
-labelSupIPPB:'Supervisions IPPB totales',
-labelSupWeiter:'Supervisions formation',
-labelSupSingolo:'Supervisions individuel',
-labelSupGruppo:'Supervisions groupe',
-labelSupChange:'Changé superviseur ?',
-labelHrsChange:'≥100h supervision ?',
-supChangePrompt:'Sélectionner...',
-supHrsPrompt:'Sélectionner...',
-supChangeYes:'Oui',
-supChangeNo:'Non',
-supHrsYes:'Oui',
-supHrsNo:'Non',
-    placeholderTipoAttivita: 'Choisir type d’activité',
-    tipoAdult: 'Psychiatrie et Psychothérapie adultes',
-    tipoInfantile: 'Psy enfants/adolescents',
-    tipoSomatico: 'Année somatique',
-    tipoRicerca: 'Recherche',
-    tipoStudio: 'Cabinet médical',
-    placeholderCategoria: 'Choisir catégorie',
-    catAOsp: 'A hospitalier général',
-    catAAmb: 'A ambulatoire général',
-    catBOsp: 'B hospitalier général',
-    catBAmb: 'B ambulatoire général',
-    catCOsp: 'C hospitalier général',
-    catCAmb: 'C ambulatoire général',
-    catFormApprof: 'Toute catégorie formation approfondie',
-    mesiPlaceholder: 'Entrer nombre de mois',
-    pensumPlaceholder: 'Entrer le pensum en %',
-        workTitle: "Activité professionnelle",
-    creditsTitle: "Crédits de formation",
-    supervisionTitle: "Supervisions",
-validMonths: "{v} / 72 mois valides",
-gapsAndExcess: "Manques et excédents",
-    formErrors: "Erreurs dans le formulaire :",
-    missingOspA: "Il manque {n} mois en hospitalier catégorie A (minimum 12)",
-    missingTotOsp: "Il manque au total {n} mois d’activité hospitalière (minimum 24)",
-    missingAmbA: "Il manque {n} mois en ambulatoire catégorie A (minimum 12)",
-    missingTotAmb: "Il manque au total {n} mois d’activité ambulatoire/cabinet médical (minimum 24)",
-    missingSom: "Il manque {n} mois d’activité somatique (minimum 12)",
-    tooManyOsp: "Tu as {n} mois hospitaliers qui ne peuvent pas être comptabilisés (max 36)",
-    tooManyAmb: "Tu as {n} mois ambulatoires/cabinet médical qui ne peuvent pas être pris en compte (max 36)",
-    tooManyExtra: "Tu as {n} mois en recherche/pédopsychiatrie qui ne peuvent pas être comptabilisés (max 12)",
-    excludedByLimit: "En raison de la limite totale de 60 mois entre psychiatrie et extra, {n} mois ont été exclus",
-categoryMissing: "Période {p} : catégorie {cat} manquante"
-},
-
-      it:{
-pageTitle:'Calcolo Avanzamento Formazione',
-headerTitle:'Calcolo Avanzamento Formazione',
-headerSubtitle:'Psichiatria e Psicoterapia degli Adulti',
-disclaimer: 'Questo Tool è gratuitamente offerto dalla Associazione Svizzera degli Assistenti in Psichiatria (SVPA-ASMAP-ASAP). Il Tool è basato sull\'interpretazione dei programmi di formazione ISFM-FMH. L’associazione e i suoi membri non si ritengono responsabili in caso di errori di conteggio. Si raccomanda di fare sempre riferimento ai documenti ufficiali ISFM-FMH.',
-addPeriod:'➕ Aggiungi periodo',
-questionCambioCentro:'Art. 2.1.2: Durante la formazione hai cambiato centro?',
-optNo:'No',
-optSi:'Sì',
-labelTeorici:'Crediti teorici',
-introTitle:'Introduzione modelli psicoterapeutici',
-labelCorso2024:'Corso 2024',
-labelCorsoCog:'Seminario cognitivo',
-labelCorsoPsy:'Corso psicodinamico',
-labelCorsoSis:'Workshop sistemico',
-labelPsy:'Crediti Psichiatria',
-labelCong:'Crediti Congresso',
-labelSSPP:'Partecipazione SSPP',
-selectPrompt:'Seleziona...',
-optYes:'Sì',
-optNo2:'No',
-calcButton:'🧮 Calcola Avanzamento',
-resultTitle:'Risultato',
-labelSupIPPB:'Numero di Supervisioni IPPB totali:',
-labelSupWeiter:'Numero di Supervisioni della Formazione:',
-labelSupSingolo:'Numero di Supervisioni di Psicoterapia in setting singolo:',
-labelSupGruppo:'Numero di Supervisioni di Psicoterapia in setting di gruppo:',
-labelSupChange:'Hai cambiato supervisore di psicoterapia?',
-labelHrsChange:'Hai fatto almeno 100 ore di supervisione?',
-supChangePrompt:'Seleziona...',
-supHrsPrompt:'Seleziona...',
-supChangeYes:'Sì',supChangeNo:'No',
-supHrsYes:'Sì',
-supHrsNo:'No',
-    placeholderTipoAttivita: 'Scegli tipologia di attività',
-    tipoAdult: 'Psichiatria e Psicoterapia Adulti',
-    tipoInfantile: 'Psi e Psi Infantile e adolescenziale',
-    tipoSomatico: 'Anno somatico',
-    tipoRicerca: 'Ricerca',
-    tipoStudio: 'Studio Medico',
-    placeholderCategoria: 'Scegli categoria',
-    catAOsp: 'A ospedaliero generale',
-    catAAmb: 'A ambulatoriale generale',
-    catBOsp: 'B ospedaliero generale',
-    catBAmb: 'B ambulatoriale generale',
-    catCOsp: 'C ospedaliero generale',
-    catCAmb: 'C ambulatoriale generale',
-    catFormApprof: 'Qualsiasi categoria di Formazione Approfondita',
-    mesiPlaceholder: 'Inserisci numero di mesi totali',
-    pensumPlaceholder: 'Inserisci il pensum in %',
-    workTitle: "Attività lavorativa",
-    creditsTitle: "Crediti di Formazione",
-    supervisionTitle: "Supervisioni",
-validMonths: "{v} / 72 mesi validi",
-gapsAndExcess: "Mancanze ed eccedenze",
-    formErrors: "Errori nel form:",
-    missingOspA: "Mancano {n} mesi in Ospedaliero categoria A (minimo 12)",
-    missingTotOsp: "Mancano {n} mesi totali di attività ospedaliera (minimo 24)",
-    missingAmbA: "Mancano {n} mesi in Ambulatoriale categoria A (minimo 12)",
-    missingTotAmb: "Mancano {n} mesi totali di attività ambulatoriale/studio medico (min 24)",
-    missingSom: "Mancano {n} mesi di attività somatica (minimo 12)",
-    tooManyOsp: "Hai {n} mesi ospedalieri che non possono essere conteggiati (max 36)",
-    tooManyAmb: "Hai {n} mesi ambulatoriali/studio medico che non possono essere conteggiati (max 36)",
-    tooManyExtra: "Hai {n} mesi in ricerca/infanzia che non possono essere conteggiati (max 12)",
-    excludedByLimit: "Per il limite totale di 60 mesi tra psichiatria e extra, sono stati esclusi {n} mesi",
-categoryMissing: "Periodo {p}: categoria {cat} mancante"
-}
-};
-
-const errorMessages = {
-  it: "Uno o più periodi di lavoro inseriti non sono completi o corretti.",
-  de: "Ein oder mehrere eingegebene Arbeitsperioden sind unvollständig oder fehlerhaft.",
-  fr: "Une ou plusieurs périodes de travail saisies sont incomplètes ou incorrectes.",
-  it_select: "Devi rispondere a tutte le domande obbligatorie.",
-  de_select: "Bitte beantworte alle Pflichtfragen.",
-  fr_select: "Veuillez répondre à toutes les questions obligatoires."
-};
+      .remove-period-btn {
+        position: absolute;
+        top: -18px;  
+        right: -18px;
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        padding: 0;
+        width: 38px;
+        height: 38px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 1em;
+        z-index: 2;
+        box-shadow: 0 2px 10px rgba(80,40,60,0.10);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background .2s;
+      }
+    
+      .remove-period-btn:hover { background: #b02a37; }
 
 
-function tReplace(str, data) {
-  return str.replace(/{(\w+)}/g, (_, k) => data[k]);
-}
+      #clearButton {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 15px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        font-size: 1.2em;
+      }
 
-  let periodsData = [];
+      #clearButton:hover { background-color: #b02a37; }
 
-  function getCurrentLang() {
-    return document.documentElement.lang || 'de';
-  }
+      @media (max-width: 800px) {
+        #topBar { padding: 10px 7px 7px 7px; }
+        #logo { max-width: 120px; }
+        .lang-switcher { min-width: 70px; font-size: 0.95em; padding: 8px 14px;}
+      }
+    
+      @media (max-width: 450px) {
+        #logo { max-width: 72px; }
+        #topBar { padding: 5px 2px 2px 2px;}
+        .lang-switcher { font-size: 0.9em; padding: 8px 7px;}
+      }
+    
+      .errore-periodo {
+        border: 2.5px solid #e63946 !important;
+        background-color: #fff0f0 !important;
+      }
 
-  function updateLanguage(lang) {
-    const t = translations[lang];
-    if (!t) return;
+      .errore-select {
+        border: 2px solid #e63946 !important;
+        background: #fff0f0 !important;
+      }
 
-    document.documentElement.lang = lang;
-    document.getElementById('pageTitle').textContent = t.pageTitle;
-    document.getElementById('headerTitle').textContent = t.headerTitle;
-    document.getElementById('headerSubtitle').textContent = t.headerSubtitle;
-    document.getElementById('disclaimer').innerHTML = t.disclaimer;
-    document.getElementById('addPeriodBtn').textContent = t.addPeriod;
-    document.getElementById('labelCambioCentro').textContent = t.questionCambioCentro;
-document.getElementById('workTitle').textContent = t.workTitle;
-document.getElementById('creditsTitle').textContent = t.creditsTitle;
-document.getElementById('supervisionTitle').textContent = t.supervisionTitle;
+      .offscreen {
+        position: absolute !important;
+        left: -9999px !important;
+        top: 0 !important;
+      }
+    
+    </style>
+  </head>
+
+  <body>
+
+    <div id="topBar">
+      <img src="https://svpa-asmap.ch/wp-content/uploads/2024/01/logo-2.png" id="logo" alt="Logo SVPA-ASMAP-ASAP">
+      <div class="lang-switcher">
+        <span id="selected-lang">IT</span>
+        <select id="languageSwitcher">
+          <option value="de">DE</option>
+          <option value="fr">FR</option>
+          <option value="it">IT</option>
+        </select>
+      </div>
+    </div>
 
 
-    const cambioCentroSel = document.getElementById('cambioCentro');
-    cambioCentroSel.options[0].textContent = t.selectPrompt;
-    cambioCentroSel.options[1].textContent = t.optSi;
-    cambioCentroSel.options[2].textContent = t.optNo;
+    <div id="headerContainer">
+      <h1 id="headerTitle">Berechnung des Weiterbildungsfortschritts</h1>
+      <h2 id="headerSubtitle" style="margin-top:-10px;">Psychiatrie und Psychotherapie bei Erwachsenen</h2>
+    </div>
 
-    document.getElementById('labelTeorici').textContent = t.labelTeorici;
-    document.getElementById('introTitle').textContent = t.introTitle;
-    document.getElementById('labelCorso2024').textContent = t.labelCorso2024;
-    document.getElementById('labelCorsoCog').textContent = t.labelCorsoCog;
-    document.getElementById('labelCorsoPsy').textContent = t.labelCorsoPsy;
-    document.getElementById('labelCorsoSis').textContent = t.labelCorsoSis;
-    document.getElementById('labelPsy').textContent = t.labelPsy;
-    document.getElementById('labelCong').textContent = t.labelCong;
-    document.getElementById('labelSSPP').textContent = t.labelSSPP;
+    <p id="disclaimer" style="text-align:center; font-size:0.9em; color:#666; max-width: 700px; margin: 10px auto 20px;"></p>
 
-    const sss = document.getElementById('partecipazioneSSPP');
-    sss.options[0].textContent = t.selectPrompt;
-    sss.options[1].textContent = t.optYes;
-    sss.options[2].textContent = t.optNo2;
+    <br><br>
 
-    document.getElementById('calcBtn').textContent = t.calcButton;
-    document.getElementById('resultHeader').textContent = t.resultTitle;
-    document.getElementById('labelSupIPPB').textContent = t.labelSupIPPB;
-    document.getElementById('labelSupWeiter').textContent = t.labelSupWeiter;
-    document.getElementById('labelSupSingolo').textContent = t.labelSupSingolo;
-    document.getElementById('labelSupGruppo').textContent = t.labelSupGruppo;
-    document.getElementById('labelSupChange').textContent = t.labelSupChange;
-    document.getElementById('labelHrsChange').textContent = t.labelHrsChange;
+    <h2 id="workTitle"></h2>
 
-    const sc = document.getElementById('supChange');
-    sc.options[0].textContent = t.selectPrompt;
-    sc.options[1].textContent = t.supChangeYes;
-    sc.options[2].textContent = t.supChangeNo;
+    <div id="periodi"></div>
+    <div class="centered-button">
+      <button id="addPeriodBtn"></button>
+    </div>
+    <br>
 
-    const shc = document.getElementById('supHrsChange');
-    shc.options[0].textContent = t.selectPrompt;
-    shc.options[1].textContent = t.supHrsYes;
-    shc.options[2].textContent = t.supHrsNo;
+    <div id="DomcambioCentro" class="section">
+      <label for="cambioCentro"><span id="labelCambioCentro"></span>
+        <select id="cambioCentro">
+          <option value="" disabled selected hidden></option>
+          <option value="yes"></option>
+          <option value="no"></option>
+        </select>
+      </label>
+    </div>
+    <br><br>
 
-    document.getElementById('selected-lang').textContent = lang.toUpperCase();
 
-if (document.getElementById('risultato').innerHTML.trim() !== '') {
-  calculateResult();
-}
+    <h2 id="creditsTitle"></h2>
 
-    renderPeriods();
+    <div id="creditSectionTeorici" class="section">
+      <label for="creditiTeorici" id="labelTeorici"></label>
+      <input type="number" id="creditiTeorici" min="0" max="500" placeholder="0">
+      <span class="input-error" style="display:none;color:#dc3545;font-size:0.98em;margin-top:2px"></span>
+      <div class="small-title" id="introTitle"></div>
+      <div class="checkbox-group">
+        <label><input type="checkbox" id="corso2024"><span id="labelCorso2024"></span></label>
+        <label><input type="checkbox" id="corsoCog"><span id="labelCorsoCog"></span></label>
+        <label><input type="checkbox" id="corsoPsy"><span id="labelCorsoPsy"></span></label>
+        <label><input type="checkbox" id="corsoSis"><span id="labelCorsoSis"></span></label>
+      </div>
+    </div>
 
-  }
+    <div id="creditSectionPsy" class="section">
+      <label for="creditiPsy" id="labelPsy"></label>
+      <input type="number" id="creditiPsy" min="0" max="500" placeholder="0">
+      <span class="input-error" style="display:none;color:#dc3545;font-size:0.98em;margin-top:2px"></span>
+    </div>
 
-  function renderPeriods() {
-    const t = translations[getCurrentLang()];
-    const container = document.getElementById('periodi');
-    container.innerHTML = '';
+    <div id="creditSectionCong" class="section">
+      <label for="creditiCong" id="labelCong"></label>
+      <input type="number" id="creditiCong" min="0" max="500" placeholder="0">
+      <span class="input-error" style="display:none;color:#dc3545;font-size:0.98em;margin-top:2px"></span>
+      <br><br>
+      <label for="partecipazioneSSPP"><span id="labelSSPP"></span>
+        <select id="partecipazioneSSPP">
+          <option value="" disabled selected hidden></option>
+          <option value="yes"></option>
+          <option value="no"></option>
+        </select>
+      </label>
+    </div>
 
-    periodsData.forEach((period, idx) => {
-      const div = document.createElement('div');
-      div.className = 'periodo';
-      div.dataset.idx = idx; // fondamentale per event delegation
-      div.innerHTML = `
-        <button type="button" class="remove-period-btn" title="Rimuovi periodo">✖</button>
-        <label>
-          <select class="tipo-attivita">
-            <option value="" disabled ${!period.tipoAttivita ? "selected" : ""} hidden>${t.placeholderTipoAttivita}</option>
-            <option value="adult" ${period.tipoAttivita === "adult" ? "selected" : ""}>${t.tipoAdult}</option>
-            <option value="inf" ${period.tipoAttivita === "inf" ? "selected" : ""}>${t.tipoInfantile}</option>
-            <option value="som" ${period.tipoAttivita === "som" ? "selected" : ""}>${t.tipoSomatico}</option>
-            <option value="ric" ${period.tipoAttivita === "ric" ? "selected" : ""}>${t.tipoRicerca}</option>
-            <option value="studio" ${period.tipoAttivita === "studio" ? "selected" : ""}>${t.tipoStudio}</option>
-          </select>
-        </label>
-        <label class="categoria-label" style="${period.tipoAttivita === 'adult' ? '' : 'display:none'}">
-          <select class="categoria-attivita">
-            <option value="" disabled ${!period.categoria ? "selected" : ""} hidden>${t.placeholderCategoria}</option>
-            <option value="ospA" ${period.categoria === "ospA" ? "selected" : ""}>${t.catAOsp}</option>
-            <option value="ambA" ${period.categoria === "ambA" ? "selected" : ""}>${t.catAAmb}</option>
-            <option value="ospB" ${period.categoria === "ospB" ? "selected" : ""}>${t.catBOsp}</option>
-            <option value="ambB" ${period.categoria === "ambB" ? "selected" : ""}>${t.catBAmb}</option>
-            <option value="ospC" ${period.categoria === "ospC" ? "selected" : ""}>${t.catCOsp}</option>
-            <option value="ambC" ${period.categoria === "ambC" ? "selected" : ""}>${t.catCAmb}</option>
-            <option value="studio" ${period.categoria === "studio" ? "selected" : ""}>${t.tipoStudio}</option>
-            <option value="formAppr" ${period.categoria === "formAppr" ? "selected" : ""}>${t.catFormApprof}</option>
-          </select>
-        </label>
-        <label>
-          <input type="number" min="0" max="100" class="mesi" placeholder="${t.mesiPlaceholder}" value="${period.mesi || ''}">
-          <span class="input-error" style="display:none;color:#dc3545;font-size:0.98em;margin-top:2px"></span>
-        </label>
-        <label>
-          <input type="number" min="0" max="100" class="pensum" placeholder="${t.pensumPlaceholder}" value="${period.pensum || ''}">
-          <span class="input-error" style="display:none;color:#dc3545;font-size:0.98em;margin-top:2px"></span>
-        </label>
-      `;
-      container.appendChild(div);
-    });
-  }
+    <h2 id="supervisionTitle"></h2>
 
-  // Event delegation sul container periodi
-  const periodiContainer = document.getElementById('periodi');
+    <div id="supervisionSection" class="section">
+      <label for="supIPPB"><span id="labelSupIPPB"></span></label>
+      <input type="number" id="supIPPB" min="0" max="500" placeholder="0">
+      <span class="input-error" style="display:none;color:#dc3545;font-size:0.98em;margin-top:2px"></span>
+      <br><br>
+      <label for="supWeiter"><span id="labelSupWeiter"></span></label>
+      <input type="number" id="supWeiter" min="0" max="500" placeholder="0">
+      <span class="input-error" style="display:none;color:#dc3545;font-size:0.98em;margin-top:2px"></span>
+    </div>
 
-  periodiContainer.addEventListener('click', (e) => {
-    if (e.target.classList.contains('remove-period-btn')) {
-      const idx = +e.target.closest('.periodo').dataset.idx;
-      periodsData.splice(idx, 1);
+    <div id="PsysupervisionSection" class="section">
+      <label for="supSingolo"><span id="labelSupSingolo"></span></label>
+      <input type="number" id="supSingolo" min="0" max="500" placeholder="0">
+      <span class="input-error" style="display:none;color:#dc3545;font-size:0.98em;margin-top:2px"></span>
+      <br><br>
+      <label for="supGruppo"><span id="labelSupGruppo"></span></label>
+      <input type="number" id="supGruppo" min="0" max="500" placeholder="0">
+      <span class="input-error" style="display:none;color:#dc3545;font-size:0.98em;margin-top:2px"></span>
+      <br><br>
+      <label for="supChange"><span id="labelSupChange"></span></label>
+      <select id="supChange" required>
+        <option value="" disabled selected hidden></option>
+        <option value="yes"></option>
+        <option value="no"></option>
+      </select><br><br>
+      <label for="supHrsChange"><span id="labelHrsChange"></span></label>
+      <select id="supHrsChange" required>
+        <option value="" disabled selected hidden></option>
+        <option value="yes"></option>
+        <option value="no"></option>
+      </select><br><br>
+    </div>
+    
+    <div class="centered-button">
+      <button id="calcBtn"></button>
+    </div>
+
+    <button id="pdfButton" style="display:none; margin-bottom: 20px;">📄 Download PDF</button>
+
+    <h2 id="resultHeader"></h2>
+
+    <div id="errore" style="color:#e63946;font-weight:bold;text-align:center;margin-bottom:18px;"></div>
+
+    <div id="risultato"></div>
+
+    <div id="creditiOutput"></div>
+
+    <button id="clearButton">🗑️ Clear All</button>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+
+      const translations = { 
+      de: {
+          pageTitle:'Berechnung des Ausbildungsfortschritts',
+          headerTitle:'Berechnung des Ausbildungsfortschritts',
+          headerSubtitle:'Psychiatrie und Psychotherapie bei Erwachsenen',
+          disclaimer: 'Dieses Tool wird kostenlos angeboten von der Schweizerischen Vereinigung der Assistenzärztinnen und -ärzte in Psychiatrie (SVPA-ASMAP-ASAP). Das Tool basiert auf der Interpretation der Weiterbildungsprogramme des ISFM-FMH. Die Vereinigung und ihre Mitglieder übernehmen keine Verantwortung bei allfälligen Rechenfehlern. Es wird empfohlen, sich stets auf die offiziellen ISFM-FMH-Dokumente zu beziehen.',
+          addPeriod:'➕ Periode hinzufügen',
+          questionCambioCentro:'Art. 2.1.2: Während der Ausbildung gewechselt?',
+          optNo:'Nein',
+          optSi:'Ja',
+          labelTeorici:'Theoretische Credits',
+          introTitle:'Einführung in Modelle',
+          labelCorso2024:'Kurs 2024',
+          labelCorsoCog:'Kognitives Seminar',
+          labelCorsoPsy:'Psychodynamischer Kurs',
+          labelCorsoSis:'Systemischer Workshop',
+          labelPsy:'Psychiatrie-Credits',
+          labelCong:'Kongress-Credits',
+          labelSSPP:'Teilnahme an SSPP',
+          selectPrompt:'Auswählen...',
+          optYes:'Ja',
+          optNo2:'Nein',
+          calcButton:'🧮 Fortschritt berechnen',
+          resultTitle:'Ergebnis',
+          labelSupIPPB:'Anzahl IPPB-Supervisionen tot.',
+          labelSupWeiter:'Weiterbildungssupervisionen',
+          labelSupSingolo:'Supervisionen Einzelsitzung',
+          labelSupGruppo:'Supervisionen Gruppensitzung',
+          labelSupChange:'Supervisor gewechselt?',
+          labelHrsChange:'Mind. 100h Supervision?',
+          supChangePrompt:'Auswählen...',
+          supHrsPrompt:'Auswählen...',
+          supChangeYes:'Ja',
+          supChangeNo:'Nein',
+          supHrsYes:'Ja',
+          supHrsNo:'Nein',
+          placeholderTipoAttivita: 'Art der Tätigkeit auswählen',
+          tipoAdult: 'Psychiatrie und Psychotherapie Erwachsene',
+          tipoInfantile: 'Kinder- und Jugendpsychiatrie',
+          tipoSomatico: 'Somatisches Jahr',
+          tipoRicerca: 'Forschung',
+          tipoStudio: 'Arztpraxis',
+          placeholderCategoria: 'Kategorie auswählen',
+          catAOsp: 'A Stationär allgemein',
+          catAAmb: 'A Ambulant allgemein',
+          catBOsp: 'B Stationär allgemein',
+          catBAmb: 'B Ambulant allgemein',
+          catCOsp: 'C Stationär allgemein',
+          catCAmb: 'C Ambulant allgemein',
+          catFormApprof: 'Beliebige vertiefte Weiterbildungskategorie',
+          mesiPlaceholder: 'Anzahl Monate eingeben',
+          pensumPlaceholder: 'Pensum in % eingeben',
+          workTitle: "Arbeitstätigkeit",
+          creditsTitle: "Ausbildungscredits",
+          supervisionTitle: "Supervisionen",
+          validMonths: "{v} / 72 gültige Monate",
+          gapsAndExcess: "Fehlende und überschüssige Periode",
+          formErrors: "Fehler im Formular:",
+          missingOspA: "Es fehlen {n} Monate in Kategorie A stationär (mindestens 12)",
+          missingTotOsp: "Es fehlen insgesamt {n} Monate Tätigkeit im stationären Bereich (mindestens 24)",
+          missingAmbA: "Es fehlen {n} Monate in Kategorie A ambulant (mindestens 12)",
+          missingTotAmb: "Es fehlen insgesamt {n} Monate Tätigkeit im ambulanten Bereich/Praxis (mind. 24)",
+          missingSom: "Es fehlen {n} Monate somatische Tätigkeit (mindestens 12)",
+          tooManyOsp: "Du hast {n} stationäre Monate, die nicht angerechnet werden können (maximal 36)",
+          tooManyAmb: "Du hast {n} ambulante/Praxis-Monate, die nicht angerechnet werden können (max 36)",
+          tooManyExtra: "Du hast {n} Monate Forschung/Kinderpsychiatrie, die nicht angerechnet werden können (max 12)",
+          excludedByLimit: "Aufgrund des Gesamtlimits von 60 Monaten für Psychiatrie und Extra wurden {n} Monate ausgeschlossen",
+          categoryMissing: "Periode {p}: Kategorie {cat} fehlt",
+          creditiBar: {
+              teorici: 'Teorici',
+              psy: 'Psicoterapia',
+              cong: 'Congressi',
+              missing: 'Mancanti'
+          },
+          creditiMancanzeTitle: "Mancanze ed eccedenze",
+          creditiMissingTeorici: n => `Ti mancano ancora <b>${n}</b> crediti di formazione teorica.`,
+          creditiMissingPsy: n => `Ti mancano ancora <b>${n}</b> crediti di formazione psicoterapeutica.`,
+          creditiMissingCong: n => `Ti mancano ancora <b>${n}</b> crediti di congressi, workshop e corsi.`,
+          creditiMissingIntro: "Devi ancora frequentare i corsi introduttivi alla psicoterapia (inclusi nei 240 crediti di base).",
+          creditiMissingIntroSome: mancanti => `Devi ancora frequentare i seguenti corsi di introduzione alla psicoterapia: <b>${mancanti.join(', ')}</b> secondo programma 2009 oppure il nuovo corso completo da 40 crediti secondo programma 2024.`,
+          creditiMissingSSPP: "Devi rispondere alla partecipazione completa al congresso annuale SSPP.",
+          creditiMissingSSPPNo: "Devi ancora effettuare una partecipazione completa obbligatoria al congresso annuale della SSPP."
+        },
+
+        fr:{
+          pageTitle:'Calcul de l’avancement de la formation',
+          headerTitle:'Calcul de l’avancement de la formation',
+          headerSubtitle:'Psychiatrie et psychothérapie des adultes',
+          disclaimer: 'Cet outil est proposé gratuitement par l\'Association Suisse des Assistant·e·s en Psychiatrie (SVPA-ASMAP-ASAP). L\'outil est basé sur l\'interprétation des programmes de formation de l\'ISFM-FMH. L\'association et ses membres déclinent toute responsabilité en cas d\'erreurs de calcul. Il est recommandé de toujours se référer aux documents officiels de l\'ISFM-FMH.',
+          addPeriod:'➕ Ajouter une période',
+          questionCambioCentro:'Art. 2.1.2 : Avez-vous changé ?',
+          optNo:'Non',
+          optSi:'Oui',
+          labelTeorici:'Crédits théoriques',
+          introTitle:'Introduction modèles',
+          labelCorso2024:'Cours 2024',
+          labelCorsoCog:'Séminaire cognitif',
+          labelCorsoPsy:'Cours psychodynamique',
+          labelCorsoSis:'Atelier systémique',
+          labelPsy:'Crédits psychiatrie',
+          labelCong:'Crédits congrès',
+          labelSSPP:'Participation SSPP',
+          selectPrompt:'Sélectionner...',
+          optYes:'Oui',
+          optNo2:'Non',
+          calcButton:'🧮 Calculer',
+          resultTitle:'Résultat',
+          labelSupIPPB:'Supervisions IPPB totales',
+          labelSupWeiter:'Supervisions formation',
+          labelSupSingolo:'Supervisions individuel',
+          labelSupGruppo:'Supervisions groupe',
+          labelSupChange:'Changé superviseur ?',
+          labelHrsChange:'≥100h supervision ?',
+          supChangePrompt:'Sélectionner...',
+          supHrsPrompt:'Sélectionner...',
+          supChangeYes:'Oui',
+          supChangeNo:'Non',
+          supHrsYes:'Oui',
+          supHrsNo:'Non',
+          creditiLegenda: "Legenda",
+          placeholderTipoAttivita: 'Choisir type d’activité',
+          tipoAdult: 'Psychiatrie et Psychothérapie adultes',
+          tipoInfantile: 'Psy enfants/adolescents',
+          tipoSomatico: 'Année somatique',
+          tipoRicerca: 'Recherche',
+          tipoStudio: 'Cabinet médical',
+          placeholderCategoria: 'Choisir catégorie',
+          catAOsp: 'A hospitalier général',
+          catAAmb: 'A ambulatoire général',
+          catBOsp: 'B hospitalier général',
+          catBAmb: 'B ambulatoire général',
+          catCOsp: 'C hospitalier général',
+          catCAmb: 'C ambulatoire général',
+          catFormApprof: 'Toute catégorie formation approfondie',
+          mesiPlaceholder: 'Entrer nombre de mois',
+          pensumPlaceholder: 'Entrer le pensum en %',
+          workTitle: "Activité professionnelle",
+          creditsTitle: "Crédits de formation",
+          supervisionTitle: "Supervisions",
+          validMonths: "{v} / 72 mois valides",
+          gapsAndExcess: "Manques et excédents",
+          formErrors: "Erreurs dans le formulaire :",
+          missingOspA: "Il manque {n} mois en hospitalier catégorie A (minimum 12)",
+          missingTotOsp: "Il manque au total {n} mois d’activité hospitalière (minimum 24)",
+          missingAmbA: "Il manque {n} mois en ambulatoire catégorie A (minimum 12)",
+          missingTotAmb: "Il manque au total {n} mois d’activité ambulatoire/cabinet médical (minimum 24)",
+          missingSom: "Il manque {n} mois d’activité somatique (minimum 12)",
+          tooManyOsp: "Tu as {n} mois hospitaliers qui ne peuvent pas être comptabilisés (max 36)",
+          tooManyAmb: "Tu as {n} mois ambulatoires/cabinet médical qui ne peuvent pas être pris en compte (max 36)",
+          tooManyExtra: "Tu as {n} mois en recherche/pédopsychiatrie qui ne peuvent pas être comptabilisés (max 12)",
+          excludedByLimit: "En raison de la limite totale de 60 mois entre psychiatrie et extra, {n} mois ont été exclus",
+          categoryMissing: "Période {p} : catégorie {cat} manquante",
+          creditiBar: {
+            teorici: 'Teorici',
+            psy: 'Psicoterapia',
+            cong: 'Congressi',
+            missing: 'Mancanti'
+          },
+          creditiLegenda: "Legenda",
+          creditiMancanzeTitle: "Mancanze ed eccedenze",
+          creditiMissingTeorici: n => `Ti mancano ancora <b>${n}</b> crediti di formazione teorica.`,
+          creditiMissingPsy: n => `Ti mancano ancora <b>${n}</b> crediti di formazione psicoterapeutica.`,
+          creditiMissingCong: n => `Ti mancano ancora <b>${n}</b> crediti di congressi, workshop e corsi.`,
+          creditiMissingIntro: "Devi ancora frequentare i corsi introduttivi alla psicoterapia (inclusi nei 240 crediti di base).",
+          creditiMissingIntroSome: mancanti => `Devi ancora frequentare i seguenti corsi di introduzione alla psicoterapia: <b>${mancanti.join(', ')}</b> secondo programma 2009 oppure il nuovo corso completo da 40 crediti secondo programma 2024.`,
+          creditiMissingSSPP: "Devi rispondere alla partecipazione completa al congresso annuale SSPP.",
+          creditiMissingSSPPNo: "Devi ancora effettuare una partecipazione completa obbligatoria al congresso annuale della SSPP."
+        },
+
+        it:{
+          pageTitle:'Calcolo Avanzamento Formazione',
+          headerTitle:'Calcolo Avanzamento Formazione',
+          headerSubtitle:'Psichiatria e Psicoterapia degli Adulti',
+          disclaimer: 'Questo Tool è gratuitamente offerto dalla Associazione Svizzera degli Assistenti in Psichiatria (SVPA-ASMAP-ASAP). Il Tool è basato sull\'interpretazione dei programmi di formazione ISFM-FMH. L’associazione e i suoi membri non si ritengono responsabili in caso di errori di conteggio. Si raccomanda di fare sempre riferimento ai documenti ufficiali ISFM-FMH.',
+          addPeriod:'➕ Aggiungi periodo',
+          questionCambioCentro:'Art. 2.1.2: Durante la formazione hai cambiato centro?',
+          optNo:'No',
+          optSi:'Sì',
+          labelTeorici:'Crediti teorici',
+          introTitle:'Introduzione modelli psicoterapeutici',
+          labelCorso2024:'Corso 2024',
+          labelCorsoCog:'Seminario cognitivo',
+          labelCorsoPsy:'Corso psicodinamico',
+          labelCorsoSis:'Workshop sistemico',
+          labelPsy:'Crediti Psichiatria',
+          labelCong:'Crediti Congresso',
+          labelSSPP:'Partecipazione SSPP',
+          selectPrompt:'Seleziona...',
+          optYes:'Sì',
+          optNo2:'No',
+          calcButton:'🧮 Calcola Avanzamento',
+          resultTitle:'Risultato',
+          labelSupIPPB:'Numero di Supervisioni IPPB totali:',
+          labelSupWeiter:'Numero di Supervisioni della Formazione:',
+          labelSupSingolo:'Numero di Supervisioni di Psicoterapia in setting singolo:',
+          labelSupGruppo:'Numero di Supervisioni di Psicoterapia in setting di gruppo:',
+          labelSupChange:'Hai cambiato supervisore di psicoterapia?',
+          labelHrsChange:'Hai fatto almeno 100 ore di supervisione?',
+          supChangePrompt:'Seleziona...',
+          supHrsPrompt:'Seleziona...',
+          supChangeYes:'Sì',supChangeNo:'No',
+          supHrsYes:'Sì',
+          supHrsNo:'No',
+          placeholderTipoAttivita: 'Scegli tipologia di attività',
+          tipoAdult: 'Psichiatria e Psicoterapia Adulti',
+          tipoInfantile: 'Psi e Psi Infantile e adolescenziale',
+          tipoSomatico: 'Anno somatico',
+          tipoRicerca: 'Ricerca',
+          tipoStudio: 'Studio Medico',
+          placeholderCategoria: 'Scegli categoria',
+          catAOsp: 'A ospedaliero generale',
+          catAAmb: 'A ambulatoriale generale',
+          catBOsp: 'B ospedaliero generale',
+          catBAmb: 'B ambulatoriale generale',
+          catCOsp: 'C ospedaliero generale',
+          catCAmb: 'C ambulatoriale generale',
+          catFormApprof: 'Qualsiasi categoria di Formazione Approfondita',
+          mesiPlaceholder: 'Inserisci numero di mesi totali',
+          pensumPlaceholder: 'Inserisci il pensum in %',
+          workTitle: "Attività lavorativa",
+          creditsTitle: "Crediti di Formazione",
+          supervisionTitle: "Supervisioni",
+          validMonths: "{v} / 72 mesi validi",
+          gapsAndExcess: "Mancanze ed eccedenze",
+          formErrors: "Errori nel form:",
+          missingOspA: "Mancano {n} mesi in Ospedaliero categoria A (minimo 12)",
+          missingTotOsp: "Mancano {n} mesi totali di attività ospedaliera (minimo 24)",
+          missingAmbA: "Mancano {n} mesi in Ambulatoriale categoria A (minimo 12)",
+          missingTotAmb: "Mancano {n} mesi totali di attività ambulatoriale/studio medico (min 24)",
+          missingSom: "Mancano {n} mesi di attività somatica (minimo 12)",
+          tooManyOsp: "Hai {n} mesi ospedalieri che non possono essere conteggiati (max 36)",
+          tooManyAmb: "Hai {n} mesi ambulatoriali/studio medico che non possono essere conteggiati (max 36)",
+          tooManyExtra: "Hai {n} mesi in ricerca/infanzia che non possono essere conteggiati (max 12)",
+          excludedByLimit: "Per il limite totale di 60 mesi tra psichiatria e extra, sono stati esclusi {n} mesi",
+          categoryMissing: "Periodo {p}: categoria {cat} mancante",
+          creditiBar: {
+              teorici: 'Teorici',
+              psy: 'Psicoterapia',
+              cong: 'Congressi',
+              missing: 'Mancanti'
+          },
+          creditiLegenda: "Legenda",
+          creditiMancanzeTitle: "Mancanze ed eccedenze",
+          creditiMissingTeorici: n => `Ti mancano ancora <b>${n}</b> crediti di formazione teorica.`,
+          creditiMissingPsy: n => `Ti mancano ancora <b>${n}</b> crediti di formazione psicoterapeutica.`,
+          creditiMissingCong: n => `Ti mancano ancora <b>${n}</b> crediti di congressi, workshop e corsi.`,
+          creditiMissingIntro: "Devi ancora frequentare i corsi introduttivi alla psicoterapia (inclusi nei 240 crediti di base).",
+          creditiMissingIntroSome: mancanti => `Devi ancora frequentare i seguenti corsi di introduzione alla psicoterapia: <b>${mancanti.join(', ')}</b> secondo programma 2009 oppure il nuovo corso completo da 40 crediti secondo programma 2024.`,
+          creditiMissingSSPP: "Devi rispondere alla partecipazione completa al congresso annuale SSPP.",
+          creditiMissingSSPPNo: "Devi ancora effettuare una partecipazione completa obbligatoria al congresso annuale della SSPP."
+          }
+      };
+
+      const errorMessages = {
+        it: "Uno o più periodi di lavoro inseriti non sono completi o corretti.",
+        de: "Ein oder mehrere eingegebene Arbeitsperioden sind unvollständig oder fehlerhaft.",
+        fr: "Une ou plusieurs périodes de travail saisies sont incomplètes ou incorrectes.",
+        it_select: "Devi rispondere a tutte le domande obbligatorie.",
+        de_select: "Bitte beantworte alle Pflichtfragen.",
+        fr_select: "Veuillez répondre à toutes les questions obligatoires."
+      };
+
+
+      function tReplace(str, data) {
+        return str.replace(/{(\w+)}/g, (_, k) => data[k]);
+      }
+
+      let periodsData = [];
+
+      function getCurrentLang() {
+        return document.documentElement.lang || 'de';
+      }
+
+      function updateLanguage(lang) {
+        const t = translations[lang];
+        if (!t) return;
+
+        document.documentElement.lang = lang;
+        document.getElementById('pageTitle').textContent = t.pageTitle;
+        document.getElementById('headerTitle').textContent = t.headerTitle;
+        document.getElementById('headerSubtitle').textContent = t.headerSubtitle;
+        document.getElementById('disclaimer').innerHTML = t.disclaimer;
+        document.getElementById('addPeriodBtn').textContent = t.addPeriod;
+        document.getElementById('labelCambioCentro').textContent = t.questionCambioCentro;
+        document.getElementById('workTitle').textContent = t.workTitle;
+        document.getElementById('creditsTitle').textContent = t.creditsTitle;
+        document.getElementById('supervisionTitle').textContent = t.supervisionTitle;
+
+        const cambioCentroSel = document.getElementById('cambioCentro');
+        cambioCentroSel.options[0].textContent = t.selectPrompt;
+        cambioCentroSel.options[1].textContent = t.optSi;
+        cambioCentroSel.options[2].textContent = t.optNo;
+
+        document.getElementById('labelTeorici').textContent = t.labelTeorici;
+        document.getElementById('introTitle').textContent = t.introTitle;
+        document.getElementById('labelCorso2024').textContent = t.labelCorso2024;
+        document.getElementById('labelCorsoCog').textContent = t.labelCorsoCog;
+        document.getElementById('labelCorsoPsy').textContent = t.labelCorsoPsy;
+        document.getElementById('labelCorsoSis').textContent = t.labelCorsoSis;
+        document.getElementById('labelPsy').textContent = t.labelPsy;
+        document.getElementById('labelCong').textContent = t.labelCong;
+        document.getElementById('labelSSPP').textContent = t.labelSSPP;
+
+        const sss = document.getElementById('partecipazioneSSPP');
+        sss.options[0].textContent = t.selectPrompt;
+        sss.options[1].textContent = t.optYes;
+        sss.options[2].textContent = t.optNo2;
+
+        document.getElementById('calcBtn').textContent = t.calcButton;
+        document.getElementById('resultHeader').textContent = t.resultTitle;
+        document.getElementById('labelSupIPPB').textContent = t.labelSupIPPB;
+        document.getElementById('labelSupWeiter').textContent = t.labelSupWeiter;
+        document.getElementById('labelSupSingolo').textContent = t.labelSupSingolo;
+        document.getElementById('labelSupGruppo').textContent = t.labelSupGruppo;
+        document.getElementById('labelSupChange').textContent = t.labelSupChange;
+        document.getElementById('labelHrsChange').textContent = t.labelHrsChange;
+
+        const sc = document.getElementById('supChange');
+        sc.options[0].textContent = t.selectPrompt;
+        sc.options[1].textContent = t.supChangeYes;
+        sc.options[2].textContent = t.supChangeNo;
+
+        const shc = document.getElementById('supHrsChange');
+        shc.options[0].textContent = t.selectPrompt;
+        shc.options[1].textContent = t.supHrsYes;
+        shc.options[2].textContent = t.supHrsNo;
+
+        document.getElementById('selected-lang').textContent = lang.toUpperCase();
+
+        if (document.getElementById('risultato').innerHTML.trim() !== '') {
+          calculateResult();
+        }
+
+        renderPeriods();
+
+      }
+
+      function renderPeriods() {
+        const t = translations[getCurrentLang()];
+        const container = document.getElementById('periodi');
+        container.innerHTML = '';
+
+        periodsData.forEach((period, idx) => {
+          const div = document.createElement('div');
+          div.className = 'periodo';
+          div.dataset.idx = idx; 
+          div.innerHTML = `
+            <button type="button" class="remove-period-btn" title="Rimuovi periodo">✖</button>
+
+            <label>
+              <select class="tipo-attivita">
+                <option value="" disabled ${!period.tipoAttivita ? "selected" : ""} hidden>${t.placeholderTipoAttivita}</option>
+                <option value="adult" ${period.tipoAttivita === "adult" ? "selected" : ""}>${t.tipoAdult}</option>
+                <option value="inf" ${period.tipoAttivita === "inf" ? "selected" : ""}>${t.tipoInfantile}</option>
+                <option value="som" ${period.tipoAttivita === "som" ? "selected" : ""}>${t.tipoSomatico}</option>
+                <option value="ric" ${period.tipoAttivita === "ric" ? "selected" : ""}>${t.tipoRicerca}</option>
+                <option value="studio" ${period.tipoAttivita === "studio" ? "selected" : ""}>${t.tipoStudio}</option>
+              </select>
+            </label>
+            
+            <label class="categoria-label" style="${period.tipoAttivita === 'adult' ? '' : 'display:none'}">
+              <select class="categoria-attivita">
+                <option value="" disabled ${!period.categoria ? "selected" : ""} hidden>${t.placeholderCategoria}</option>
+                <option value="ospA" ${period.categoria === "ospA" ? "selected" : ""}>${t.catAOsp}</option>
+                <option value="ambA" ${period.categoria === "ambA" ? "selected" : ""}>${t.catAAmb}</option>
+                <option value="ospB" ${period.categoria === "ospB" ? "selected" : ""}>${t.catBOsp}</option>
+                <option value="ambB" ${period.categoria === "ambB" ? "selected" : ""}>${t.catBAmb}</option>
+                <option value="ospC" ${period.categoria === "ospC" ? "selected" : ""}>${t.catCOsp}</option>
+                <option value="ambC" ${period.categoria === "ambC" ? "selected" : ""}>${t.catCAmb}</option>
+                <option value="studio" ${period.categoria === "studio" ? "selected" : ""}>${t.tipoStudio}</option>
+                <option value="formAppr" ${period.categoria === "formAppr" ? "selected" : ""}>${t.catFormApprof}</option>
+              </select>
+            </label>
+            
+            <label>
+              <input type="number" min="0" max="100" class="mesi" placeholder="${t.mesiPlaceholder}" value="${period.mesi || ''}">
+              <span class="input-error" style="display:none;color:#dc3545;font-size:0.98em;margin-top:2px"></span>
+            </label>
+          
+            <label>
+              <input type="number" min="0" max="100" class="pensum" placeholder="${t.pensumPlaceholder}" value="${period.pensum || ''}">
+              <span class="input-error" style="display:none;color:#dc3545;font-size:0.98em;margin-top:2px"></span>
+            </label>
+          `;
+          
+          container.appendChild(div);
+        });
+      }
+
+      const periodiContainer = document.getElementById('periodi');
+
+      periodiContainer.addEventListener('click', (e) => {
+        if (e.target.classList.contains('remove-period-btn')) {
+            const idx = +e.target.closest('.periodo').dataset.idx;
+          periodsData.splice(idx, 1);
+          renderPeriods();
+        }
+      });
+
+      periodiContainer.addEventListener('change', (e) => {
+        const periodoDiv = e.target.closest('.periodo');
+        if (!periodoDiv) return;
+        const idx = +periodoDiv.dataset.idx;
+
+        if (e.target.classList.contains('tipo-attivita')) {
+          periodsData[idx].tipoAttivita = e.target.value;
+          if (e.target.value !== 'adult') periodsData[idx].categoria = '';
+          renderPeriods();
+        }
+
+        if (e.target.classList.contains('categoria-attivita')) {
+          periodsData[idx].categoria = e.target.value;
+          renderPeriods();
+        }
+      });
+
+      periodiContainer.addEventListener('input', (e) => {
+        const periodoDiv = e.target.closest('.periodo');
+        if (!periodoDiv) return;
+        const idx = +periodoDiv.dataset.idx;
+
+        const errorSpan = e.target.parentElement.querySelector('.input-error');
+        let v = parseInt(e.target.value, 10);
+
+        if (e.target.classList.contains('mesi') || e.target.classList.contains('pensum')) {
+          if (isNaN(v) || v < 1 || v > 100) {
+            errorSpan.textContent = 'Value must be between 1 and 100';
+            errorSpan.style.display = 'block';
+            e.target.classList.add('error');
+            if (e.target.classList.contains('mesi')) periodsData[idx].mesi = '';
+            else if (e.target.classList.contains('pensum')) periodsData[idx].pensum = '';
+          } else {
+            errorSpan.textContent = '';
+            errorSpan.style.display = 'none';
+            e.target.classList.remove('error');
+            if (e.target.classList.contains('mesi')) periodsData[idx].mesi = v;
+            else if (e.target.classList.contains('pensum')) periodsData[idx].pensum = v;
+          }
+        }
+      });
+
+      document.getElementById('addPeriodBtn').onclick = () => {
+        periodsData.push({ tipoAttivita: '', categoria: '', mesi: '', pensum: '' });
+        renderPeriods();
+      };
+
+      document.getElementById('clearButton').onclick = () => {
+        periodsData = [];
+        renderPeriods();
+        document.querySelectorAll('#creditiTeorici, #creditiPsy, #creditiCong, #supIPPB, #supWeiter, #supSingolo, #supGruppo').forEach(inp => inp.value = '');
+        document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+        ['cambioCentro', 'partecipazioneSSPP', 'supChange', 'supHrsChange'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.selectedIndex = 0;
+        });
+        document.getElementById('risultato').innerHTML = '';
+        document.getElementById('pdfButton').style.display = "none";
+      };
+
+      function calculateResult() {
+        const lang = getCurrentLang();
+        const t = translations[lang];
+        let messaggiErrore = [];
+        let html1 = ""; 
+        document.querySelectorAll('.periodo').forEach(div => div.classList.remove('errore-periodo'));
+        let erroreSelect = false;
+        ['cambioCentro', 'partecipazioneSSPP', 'supChange', 'supHrsChange'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el && el.selectedIndex === 0) {
+              el.classList.add('errore-select');
+              erroreSelect = true;
+            } else if (el) {
+              el.classList.remove('errore-select');
+            }
+        });
+        
+        if (erroreSelect) messaggiErrore.push(errorMessages[lang + '_select']);
+
+        let errorePeriodi = false;
+        
+        document.querySelectorAll('.periodo').forEach((div, idx) => {
+            const p = periodsData[idx];
+            if (
+              !p.tipoAttivita ||
+              (p.tipoAttivita === "adult" && !p.categoria) ||
+              !p.mesi ||
+              (!p.pensum && p.pensum !== 0)
+            ) {
+              errorePeriodi = true;
+              div.classList.add('errore-periodo');
+            } else {
+              div.classList.remove('errore-periodo');
+            }
+        });
+
+        if (errorePeriodi) messaggiErrore.push(errorMessages[lang]);
+
+        if (messaggiErrore.length > 0) {
+          document.getElementById('errore').innerHTML = messaggiErrore.join('<br>');
+          document.getElementById('risultato').innerHTML = '';
+          return;
+        } else {
+          document.getElementById('errore').textContent = '';
+        }
+
+        const cat = {
+          ospA: 0, ospB: 0, ospC: 0,
+          ambA: 0, ambB: 0, ambC: 0,
+          studio: 0, som: 0, infanzia: 0, ricerca: 0
+        };
+
+        periodsData.forEach(p => {
+          const mesi = parseFloat(p.mesi) || 0;
+          const pensum = parseFloat(p.pensum) || 100;
+          const mesiEff = mesi * pensum / 100;
+          if (p.tipoAttivita === "som") cat.som += mesiEff;
+          else if (p.tipoAttivita === "inf") cat.infanzia += mesiEff;
+          else if (p.tipoAttivita === "ric") cat.ricerca += mesiEff;
+          else if (p.tipoAttivita === "studio") cat.studio += mesiEff;
+          else if (p.tipoAttivita === "adult") {
+            switch (p.categoria) {
+              case "ospA": cat.ospA += mesiEff; break;
+              case "ospB": cat.ospB += mesiEff; break;
+              case "ospC": cat.ospC += mesiEff; break;
+              case "ambA": cat.ambA += mesiEff; break;
+              case "ambB": cat.ambB += mesiEff; break;
+              case "ambC": cat.ambC += mesiEff; break;
+              case "studio": cat.studio += mesiEff; break;
+            }
+          }
+        });
+
+        const ospA = Math.min(cat.ospA, 36), ospB = Math.min(cat.ospB, 24), ospC = Math.min(cat.ospC, 24);
+        const ambA = Math.min(cat.ambA, 36), ambB = Math.min(cat.ambB, 24), ambC = Math.min(cat.ambC, 24);
+        const studio = cat.studio;
+        const somatico = Math.min(cat.som, 12);
+        const extra = cat.infanzia + cat.ricerca;
+        let extraValido = Math.min(extra, 12);
+        const totaleOsp = cat.ospA + cat.ospB + cat.ospC;
+        const totaleAmb = cat.ambA + cat.ambB + cat.ambC + cat.studio;
+        let ospedalieroValido = Math.min(totaleOsp, 36);
+        let ambulatorialeValido = Math.min(totaleAmb, 36);
+        let totalePsichiatriaExtra = ospedalieroValido + ambulatorialeValido + extraValido;
+        if (totalePsichiatriaExtra > 60) {
+          let eccesso = totalePsichiatriaExtra - 60;
+          if (extraValido >= eccesso) { extraValido -= eccesso; eccesso = 0; }
+          else { eccesso -= extraValido; extraValido = 0; }
+          if (eccesso > 0) {
+            if (ambulatorialeValido >= eccesso) { ambulatorialeValido -= eccesso; eccesso = 0; }
+            else { eccesso -= ambulatorialeValido; ambulatorialeValido = 0; }
+          }
+          if (eccesso > 0) {
+            ospedalieroValido -= eccesso;
+            if (ospedalieroValido < 0) ospedalieroValido = 0;
+          }
+        }
+        
+        const totaleOspPreTaglio = ospA + ospB + ospC;
+        let ospAValido = 0, ospBValido = 0, ospCValido = 0;
+        if (totaleOspPreTaglio > 0) {
+          const ratioOsp = ospedalieroValido / totaleOspPreTaglio;
+          ospAValido = ospA * ratioOsp;
+          ospBValido = ospB * ratioOsp;
+          ospCValido = ospC * ratioOsp;
+        }
+
+        const totaleAmbPreTaglio = ambA + ambB + ambC + studio;
+        let ambAValido = 0, ambBValido = 0, ambCValido = 0, studioValido = 0;
+        if (totaleAmbPreTaglio > 0) {
+          const ratioAmb = ambulatorialeValido / totaleAmbPreTaglio;
+          ambAValido = ambA * ratioAmb;
+          ambBValido = ambB * ratioAmb;
+          ambCValido = ambC * ratioAmb;
+          studioValido = studio * ratioAmb;
+        }
+        const totale = somatico + ospedalieroValido + ambulatorialeValido + extraValido;
+        const bar = x => (x / 72) * 100;
+
+        html1 += `<div class="stacked-bar-container" style="display:flex;height:20px;width:100%;border-radius:10px;overflow:hidden;margin-bottom:12px">`;
+        if (ospAValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ospAValido)}%; background:darkgreen;" title="Ospedaliero A"></div>`;
+        if (ospBValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ospBValido)}%; background:#6fcf97;" title="Ospedaliero B"></div>`;
+        if (ospCValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ospCValido)}%; background:#a8e6cf;" title="Ospedaliero C"></div>`;
+        if (ambAValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ambAValido)}%; background:darkblue;" title="Ambulatoriale A"></div>`;
+        if (ambBValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ambBValido)}%; background:#5dade2;" title="Ambulatoriale B"></div>`;
+        if (ambCValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ambCValido)}%; background:#aed6f1;" title="Ambulatoriale C"></div>`;
+        if (studioValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(studioValido)}%; background:#d4e6f1;" title="Studio Medico"></div>`;
+        if (somatico > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(somatico)}%; background:gold;" title="Somatico"></div>`;
+        if (extraValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(extraValido)}%; background:violet;" title="Extra"></div>`;
+        if (totale < 72) html1 += `<div class="stacked-bar-segment" style="width:${bar(72 - totale)}%; background:#ccc;" title="Mesi mancanti"></div>`;
+        html1 += `</div>`;
+
+        html1 += `<div class="legenda" style="margin-bottom:16px">`;
+        if (ospA > 0) html1 += `<span style="background:darkgreen;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("ospA")}</span>`;
+        if (ospB > 0) html1 += `<span style="background:#6fcf97;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("ospB")}</span>`;
+        if (ospC > 0) html1 += `<span style="background:#a8e6cf;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("ospC")}</span>`;
+        if (ambA > 0) html1 += `<span style="background:darkblue;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("ambA")}</span>`;
+        if (ambB > 0) html1 += `<span style="background:#5dade2;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("ambB")}</span>`;
+        if (ambC > 0) html1 += `<span style="background:#aed6f1;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("ambC")}</span>`;
+        if (studio > 0) html1 += `<span style="background:#d4e6f1;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("studio")}</span>`;
+        if (somatico > 0) html1 += `<span style="background:gold;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("som")}</span>`;
+        if (extraValido > 0) html1 += `<span style="background:violet;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("extra")}</span>`;
+        if (totale < 72) html1 += `<span style="background:#ccc;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("missing")}</span>`;
+        html1 += `</div>`;
+
+        html1 += `<p><strong>${tReplace(t.validMonths, { v: totale.toFixed(1) })}</strong></p>`;
+
+        html1 += generaReport(cat, ospA, ambA, somatico, totaleOsp, totaleAmb, extra, ospedalieroValido, ambulatorialeValido, extraValido);
+
+        function getLegendText(key) {
+          switch(key) {
+            case "ospA": return t.catAOsp;
+            case "ospB": return t.catBOsp;
+            case "ospC": return t.catCOsp;
+            case "ambA": return t.catAAmb;
+            case "ambB": return t.catBAmb;
+            case "ambC": return t.catCAmb;
+            case "studio": return t.tipoStudio;
+            case "som": return t.tipoSomatico;
+            case "extra": return lang === "de" ? "Extra" : (lang === "fr" ? "Extra" : "Extra");
+            case "missing": return lang === "de" ? "Fehlende Monate" : (lang === "fr" ? "Mois manquants" : "Mesi mancanti");
+            default: return key;
+          }
+        }
+
+        function generaReport(cat, ospA, ambA, somatico, totaleOsp, totaleAmb, extra, ospedalieroValido, ambulatorialeValido, extraValido) {
+          let html1 = `<h3 style="color:coral">${t.gapsAndExcess}</h3><ul>`;
+          if (ospA < 12) html1 += `<li>${tReplace(t.missingOspA, { n: Math.round(12 - ospA) })}</li>`;
+          if (totaleOsp < 24) html1 += `<li>${tReplace(t.missingTotOsp, { n: Math.round(24 - totaleOsp) })}</li>`;
+          if (ambA < 12) html1 += `<li>${tReplace(t.missingAmbA, { n: Math.round(12 - ambA) })}</li>`;
+          if (totaleAmb < 24) html1 += `<li>${tReplace(t.missingTotAmb, { n: Math.round(24 - totaleAmb) })}</li>`;
+          if (somatico < 12) html1 += `<li>${tReplace(t.missingSom, { n: Math.round(12 - somatico) })}</li>`;
+          if (totaleOsp > 36) html1 += `<li>${tReplace(t.tooManyOsp, { n: Math.round(totaleOsp - 36) })}</li>`;
+          if (totaleAmb > 36) html1 += `<li>${tReplace(t.tooManyAmb, { n: Math.round(totaleAmb - 36) })}</li>`;
+          if (extra > 12) html1 += `<li>${tReplace(t.tooManyExtra, { n: Math.round(extra - 12) })}</li>`;
+          const totalePsichiatriaExtra = ospedalieroValido + ambulatorialeValido + extraValido;
+          if (totalePsichiatriaExtra < (ospedalieroValido + ambulatorialeValido + extra)) {
+            const taglio = Math.round((ospedalieroValido + ambulatorialeValido + extra) - totalePsichiatriaExtra);
+            html1 += `<li>${tReplace(t.excludedByLimit, { n: taglio })}</li>`;
+          }
+          html1 += '</ul>'; 
+          return html1;
+        }
+    
+        document.getElementById('risultato').innerHTML = `<div class="section">${html1}</div>`;
+
+      }
+
+      function calcolaCrediti() {
+        const lang = getCurrentLang();
+        const t = translations[lang];
+        const output = document.getElementById('creditiOutput');
+        let html2 = '';
+        const partecipazione = document.getElementById('partecipazioneSSPP').value;
+        let mancanze = [];
+
+        if (!partecipazione) {
+          output.innerHTML = `<p>${t.creditiMissingSSPP}</p>`;
+          return;
+        }
+    
+        if (partecipazione === 'no') {
+          mancanze.push(t.creditiMissingSSPPNo);
+        }
+
+        const teorici = parseFloat(document.getElementById('creditiTeorici').value) || 0;
+        const psy = parseFloat(document.getElementById('creditiPsy').value) || 0;
+        const cong = parseFloat(document.getElementById('creditiCong').value) || 0;
+        const maxTeorici = 240, maxPsy = 180, maxCong = 180;
+
+        html2 += `<div class="stacked-bar-container" style="margin-bottom:10px;display:flex;width:100%;height:22px;border-radius:9px;overflow:hidden">`;
+        const totalCrediti = Math.min(teorici, maxTeorici) + Math.min(psy, maxPsy) + Math.min(cong, maxCong);
+        const segm = [
+          { val: Math.min(teorici, maxTeorici), color: 'darkgreen', label: t.creditiBar.teorici },
+          { val: Math.min(psy, maxPsy), color: 'darkblue', label: t.creditiBar.psy },
+          { val: Math.min(cong, maxCong), color: 'purple', label: t.creditiBar.cong },
+          { val: Math.max(0, 600 - totalCrediti), color: '#ccc', label: t.creditiBar.missing }
+        ];
+    
+        segm.forEach(s => {
+          html2 += `<div class="stacked-bar-segment" style="width:${(s.val/600*100).toFixed(1)}%;background:${s.color}" title="${s.label}: ${s.val}"></div>`;
+        });
+    
+        html2 += '</div>';
+
+        html2 += `<div style="margin-bottom:12px;">`;
+    
+        segm.forEach(s => {
+          if (s.val > 0) html2 += `<span style="display:inline-block;margin-right:7px;background:${s.color};padding:2px 9px;border-radius:7px;color:#fff;font-size:0.99em">${s.label}</span>`;
+        });
+          
+        html2 += `</div>`;
+    
+        if (teorici < maxTeorici) mancanze.push(t.creditiMissingTeorici(maxTeorici - teorici));
+        if (psy < maxPsy) mancanze.push(t.creditiMissingPsy(maxPsy - psy));
+        if (cong < maxCong) mancanze.push(t.creditiMissingCong(maxCong - cong));
+
+        const fatto2024 = document.getElementById('corso2024').checked;
+        const corsi2009 = [
+        { id: 'corsoCog', label: 'cognitivo-comportamentale' },
+        { id: 'corsoPsy', label: 'psicodinamica' },
+        { id: 'corsoSis', label: 'sistemica' }
+        ];
+    
+        const selezionati2009 = corsi2009.filter(c => document.getElementById(c.id).checked);
+
+        if (!fatto2024 && selezionati2009.length === 0) {
+          mancanze.push(t.creditiMissingIntro);
+        } else if (!fatto2024 && selezionati2009.length > 0 && selezionati2009.length < corsi2009.length) {
+          const mancanti = corsi2009.filter(c => !document.getElementById(c.id).checked).map(c => c.label);
+          mancanze.push(t.creditiMissingIntroSome(mancanti));
+        }
+
+    
+        html2 += `<h3 style="color:coral; margin-top: 18px;">${t.creditiMancanzeTitle}</h3>`;
+    
+        if (mancanze.length > 0) {
+          html2 += `<ul>`;
+          mancanze.forEach(m => html2 += `<li>${m}</li>`);
+          html2 += `</ul>`;
+        } else {
+          html2 += `<p style="color:green"><b>Non ci sono mancanze nei crediti inseriti.</b></p>`;
+        }
+
+        output.innerHTML = `<div class="section">${html2}</div>`;
+      }
+
       renderPeriods();
-    }
-  });
+      [
+        'creditiTeorici',
+        'creditiPsy',
+        'creditiCong',
+        'supIPPB',
+        'supWeiter',
+        'supSingolo',
+        'supGruppo'
+      ].forEach(id => {
+        const input = document.getElementById(id);
+        const errorSpan = input.nextElementSibling;
+        input.oninput = function() {
+          let v = parseInt(input.value, 10);
+          if (isNaN(v) || v < 0 || v > 500) {
+            errorSpan.textContent = 'Value must be between 0 and 500';
+            errorSpan.style.display = 'block';
+            input.classList.add('error');
+          } else {
+            errorSpan.textContent = '';
+            errorSpan.style.display = 'none';
+            input.classList.remove('error');
+          }
+        };
+      });
 
-  periodiContainer.addEventListener('change', (e) => {
-    const periodoDiv = e.target.closest('.periodo');
-    if (!periodoDiv) return;
-    const idx = +periodoDiv.dataset.idx;
+      document.getElementById('calcBtn').onclick = function() {
+        calculateResult();
+        calcolaCrediti();
+        document.getElementById('pdfButton').style.display = "inline-block";  
+      };
+      
+      document.getElementById('languageSwitcher').addEventListener('change', e => {
+        const lang = e.target.value;
+        localStorage.setItem('selectedLanguage', lang);
+        updateLanguage(lang);
+        document.getElementById('languageSwitcher').value = lang;
+      });
 
-    if (e.target.classList.contains('tipo-attivita')) {
-      periodsData[idx].tipoAttivita = e.target.value;
-      // Se cambia tipoAttivita, resetta categoria se non è più 'adult'
-      if (e.target.value !== 'adult') periodsData[idx].categoria = '';
+      const savedLang = localStorage.getItem('selectedLanguage') || 'de';
+      updateLanguage(savedLang);
+      document.getElementById('languageSwitcher').value = savedLang;
+
+
+      function printPDF() {
+        document.getElementById('pdfRisultato1').innerHTML = document.getElementById('risultato').innerHTML || '';
+        document.getElementById('pdfRisultato2').innerHTML = document.getElementById('creditiOutput').innerHTML || '';
+        var box = document.getElementById('pdfExportBox');
+        box.style.display = "block";
+        box.classList.remove("offscreen");
+
+        // Force reflow
+        void box.offsetWidth;
+
+        // Increase delay to ensure rendering
+        setTimeout(() => {
+          html2pdf().from(box).set({
+            margin: 0,
+            filename: 'progress_report.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, backgroundColor: "#fff" },
+            jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' }
+          }).save().then(() => {
+            box.style.display = "none";
+            box.classList.add("offscreen");
+          });
+        }, 1000); // 1 second delay
+      }
+
+
+
+      document.getElementById('pdfButton').onclick = printPDF;
+
+
       renderPeriods();
-    }
+      });
 
-    if (e.target.classList.contains('categoria-attivita')) {
-      periodsData[idx].categoria = e.target.value;
-      renderPeriods();
-    }
-  });
+    </script>
 
-  periodiContainer.addEventListener('input', (e) => {
-    const periodoDiv = e.target.closest('.periodo');
-    if (!periodoDiv) return;
-    const idx = +periodoDiv.dataset.idx;
+    <footer style="text-align:center; font-size:0.85em; color:#555; padding:20px; margin-top:40px;">
+      <p>
+        The code was created and licensed to the association by Dr. Davide Zani. For feedback or permission requests, contact <a href="mailto:info@svpa-asmap.ch">info@svpa-asmap.ch</a>. Reuse, redistribution, commercial use, or modification is not permitted without express authorization. 
 
-    const errorSpan = e.target.parentElement.querySelector('.input-error');
-    let v = parseInt(e.target.value, 10);
+        <a href="https://svpa-asmap.ch" target="_blank" rel="noopener noreferrer">SVPA-ASMAP-ASAP</a>
+        — This educational tool is protected by Swiss copyright law (Art. 2 URG, SR 231.1). Licensed under 
+        <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noopener noreferrer">
+          Creative Commons BY-NC-ND 4.0
+        </a>.
+      </p>
+      
+      <p>
+        <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noopener noreferrer">
+          <img src="https://licensebuttons.net/l/by-nc-nd/4.0/88x31.png" alt="CC BY-NC-ND 4.0" style="border:none;">
+        </a>
+      </p>
 
-    if (e.target.classList.contains('mesi') || e.target.classList.contains('pensum')) {
-      if (isNaN(v) || v < 1 || v > 100) {
-        errorSpan.textContent = 'Value must be between 1 and 100';
-        errorSpan.style.display = 'block';
-        e.target.classList.add('error');
-        if (e.target.classList.contains('mesi')) periodsData[idx].mesi = '';
-        else if (e.target.classList.contains('pensum')) periodsData[idx].pensum = '';
-      } else {
-        errorSpan.textContent = '';
-        errorSpan.style.display = 'none';
-        e.target.classList.remove('error');
-        if (e.target.classList.contains('mesi')) periodsData[idx].mesi = v;
-        else if (e.target.classList.contains('pensum')) periodsData[idx].pensum = v;
-      }
-    }
-  });
-
-  document.getElementById('addPeriodBtn').onclick = () => {
-    periodsData.push({ tipoAttivita: '', categoria: '', mesi: '', pensum: '' });
-    renderPeriods();
-  };
-
-  document.getElementById('clearButton').onclick = () => {
-    periodsData = [];
-    renderPeriods();
-    // Reset altri campi
-    document.querySelectorAll('#creditiTeorici, #creditiPsy, #creditiCong, #supIPPB, #supWeiter, #supSingolo, #supGruppo').forEach(inp => inp.value = '');
-    document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-    ['cambioCentro', 'partecipazioneSSPP', 'supChange', 'supHrsChange'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.selectedIndex = 0;
-    });
-    document.getElementById('risultato').innerHTML = '';
-  };
+    </footer>
+    
+    
+    <div id="pdfExportBox" class="offscreen">
+      <h1 style="text-align: center; color:#352682; font-size: 2.3em; font-weight: 900; margin-bottom: 12px;">
+        Calcolo Avanzamento Formazione
+      </h1>
+      <h2 style="text-align: center; color:#352682; font-size: 1.22em; font-weight: 500; margin-bottom: 32px;">
+        Psichiatria e Psicoterapia degli Adulti
+      </h2>
+      <div id="pdfRisultato1" class="section" style="margin-bottom: 34px;">
+      </div>
+      <div id="pdfRisultato2" class="section" style="margin-bottom: 28px;">
+      </div>
+    </div>
 
 
-  // --- Calcolo avanzamento ---
-document.getElementById('calcBtn').onclick = calculateResult;
-
-function calculateResult() {
-  const lang = getCurrentLang();
-  const t = translations[lang];
-  let tuttoOK = true;
-  // Pulisci eventuali highlight precedenti
-  document.querySelectorAll('.periodo').forEach(div => div.classList.remove('errore-periodo'));
-
-  // Valida ogni periodo
-  periodsData.forEach((p, idx) => {
-    const div = document.querySelectorAll('.periodo')[idx];
-    if (
-      !p.tipoAttivita ||
-      (p.tipoAttivita === "adult" && !p.categoria) ||
-      !p.mesi ||
-      (!p.pensum && p.pensum !== 0)
-    ) {
-      tuttoOK = false;
-      if (div) div.classList.add('errore-periodo');
-    }
-  });
-
-  // Mostra messaggio unico se c’è almeno un errore
-  if (!tuttoOK) {
-    document.getElementById('errore').textContent = errorMessages[lang];
-    document.getElementById('risultato').innerHTML = '';
-    return;
-  } else {
-    document.getElementById('errore').textContent = '';
-  }
-
-  let erroreSelect = false;
-  ['cambioCentro', 'partecipazioneSSPP', 'supChange', 'supHrsChange'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      if (el.selectedIndex === 0) {
-        el.classList.add('errore-select');
-        erroreSelect = true;
-      } else {
-        el.classList.remove('errore-select');
-      }
-    }
-  });
-  if (erroreSelect) {
-    document.getElementById('errore').textContent = errorMessages[lang + '_select'];
-    document.getElementById('risultato').innerHTML = '';
-    return;
-  } else {
-    document.getElementById('errore').textContent = '';
-  }
-
-  // 2) Calcolo mesi per categoria
-  const cat = {
-    ospA: 0, ospB: 0, ospC: 0,
-    ambA: 0, ambB: 0, ambC: 0,
-    studio: 0, som: 0, infanzia: 0, ricerca: 0
-  };
-
-  periodsData.forEach(p => {
-    const mesi = parseFloat(p.mesi) || 0;
-    const pensum = parseFloat(p.pensum) || 100;
-    const mesiEff = mesi * pensum / 100;
-
-    if (p.tipoAttivita === "som") cat.som += mesiEff;
-    else if (p.tipoAttivita === "inf") cat.infanzia += mesiEff;
-    else if (p.tipoAttivita === "ric") cat.ricerca += mesiEff;
-    else if (p.tipoAttivita === "studio") cat.studio += mesiEff;
-    else if (p.tipoAttivita === "adult") {
-      switch (p.categoria) {
-        case "ospA": cat.ospA += mesiEff; break;
-        case "ospB": cat.ospB += mesiEff; break;
-        case "ospC": cat.ospC += mesiEff; break;
-        case "ambA": cat.ambA += mesiEff; break;
-        case "ambB": cat.ambB += mesiEff; break;
-        case "ambC": cat.ambC += mesiEff; break;
-        case "studio": cat.studio += mesiEff; break;
-      }
-    }
-  });
-
-  // Limiti massimi per categoria
-  const ospA = Math.min(cat.ospA, 36);
-  const ospB = Math.min(cat.ospB, 24);
-  const ospC = Math.min(cat.ospC, 24);
-
-  const ambA = Math.min(cat.ambA, 36);
-  const ambB = Math.min(cat.ambB, 24);
-  const ambC = Math.min(cat.ambC, 24);
-
-  const studio = cat.studio;
-
-  // Somatico fisso a massimo 12 mesi (non tagliabile)
-  const somatico = Math.min(cat.som, 12);
-
-  const extra = cat.infanzia + cat.ricerca;
-  let extraValido = Math.min(extra, 12);
-
-  // Totali reali (non tagliati)
-  const totaleOsp = cat.ospA + cat.ospB + cat.ospC;
-  const totaleAmb = cat.ambA + cat.ambB + cat.ambC + cat.studio;
-
-  // Limita a 36 mesi ciascuno
-  let ospedalieroValido = Math.min(totaleOsp, 36);
-  let ambulatorialeValido = Math.min(totaleAmb, 36);
-
-  // Limita totale psichiatria+extra a 60, somatico resta fuori dal taglio
-  let totalePsichiatriaExtra = ospedalieroValido + ambulatorialeValido + extraValido;
-
-  if (totalePsichiatriaExtra > 60) {
-    let eccesso = totalePsichiatriaExtra - 60;
-
-    // Taglia extra
-    if (extraValido >= eccesso) {
-      extraValido -= eccesso;
-      eccesso = 0;
-    } else {
-      eccesso -= extraValido;
-      extraValido = 0;
-    }
-
-    // Taglia ambulatoriale
-    if (eccesso > 0) {
-      if (ambulatorialeValido >= eccesso) {
-        ambulatorialeValido -= eccesso;
-        eccesso = 0;
-      } else {
-        eccesso -= ambulatorialeValido;
-        ambulatorialeValido = 0;
-      }
-    }
-
-    // Taglia ospedaliero
-    if (eccesso > 0) {
-      ospedalieroValido -= eccesso;
-      if (ospedalieroValido < 0) ospedalieroValido = 0;
-    }
-  }
-
-  // Calcolo proporzionale per ospedaliero
-  const totaleOspPreTaglio = ospA + ospB + ospC;
-  let ospAValido = 0, ospBValido = 0, ospCValido = 0;
-  if (totaleOspPreTaglio > 0) {
-    const ratioOsp = ospedalieroValido / totaleOspPreTaglio;
-    ospAValido = ospA * ratioOsp;
-    ospBValido = ospB * ratioOsp;
-    ospCValido = ospC * ratioOsp;
-  }
-
-  // Calcolo proporzionale per ambulatoriale
-  const totaleAmbPreTaglio = ambA + ambB + ambC + studio;
-  let ambAValido = 0, ambBValido = 0, ambCValido = 0, studioValido = 0;
-  if (totaleAmbPreTaglio > 0) {
-    const ratioAmb = ambulatorialeValido / totaleAmbPreTaglio;
-    ambAValido = ambA * ratioAmb;
-    ambBValido = ambB * ratioAmb;
-    ambCValido = ambC * ratioAmb;
-    studioValido = studio * ratioAmb;
-  }
-
-  // Calcolo totale somma (incluso somatico fisso)
-  const totale = somatico + ospedalieroValido + ambulatorialeValido + extraValido;
-
-  // Visualizzazione barra
-  const bar = x => (x / 72) * 100;
-  let barraHTML = `<div class="stacked-bar-container" style="display:flex;height:20px;width:100%;border-radius:10px;overflow:hidden;margin-bottom:12px">`;
-
-  if (ospAValido > 0) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(ospAValido)}%; background:darkgreen;" title="Ospedaliero A"></div>`;
-  if (ospBValido > 0) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(ospBValido)}%; background:#6fcf97;" title="Ospedaliero B"></div>`;
-  if (ospCValido > 0) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(ospCValido)}%; background:#a8e6cf;" title="Ospedaliero C"></div>`;
-
-  if (ambAValido > 0) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(ambAValido)}%; background:darkblue;" title="Ambulatoriale A"></div>`;
-  if (ambBValido > 0) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(ambBValido)}%; background:#5dade2;" title="Ambulatoriale B"></div>`;
-  if (ambCValido > 0) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(ambCValido)}%; background:#aed6f1;" title="Ambulatoriale C"></div>`;
-
-  if (studioValido > 0) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(studioValido)}%; background:#d4e6f1;" title="Studio Medico"></div>`;
-
-  if (somatico > 0) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(somatico)}%; background:gold;" title="Somatico"></div>`;
-
-  if (extraValido > 0) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(extraValido)}%; background:violet;" title="Extra"></div>`;
-
-  if (totale < 72) barraHTML += `<div class="stacked-bar-segment" style="width:${bar(72 - totale)}%; background:#ccc;" title="Mesi mancanti"></div>`;
-
-  barraHTML += `</div>`;
-
-  // Legenda
-  let legenda = `<div class="legenda" style="margin-bottom:16px">`;
-  if (ospA > 0) legenda += `<span style="background:darkgreen;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("ospA")}</span>`;
-  if (ospB > 0) legenda += `<span style="background:#6fcf97;color:black;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("ospB")}</span>`;
-  if (ospC > 0) legenda += `<span style="background:#a8e6cf;color:black;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("ospC")}</span>`;
-  if (ambA > 0) legenda += `<span style="background:darkblue;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("ambA")}</span>`;
-  if (ambB > 0) legenda += `<span style="background:#5dade2;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("ambB")}</span>`;
-  if (ambC > 0) legenda += `<span style="background:#aed6f1;color:black;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("ambC")}</span>`;
-  if (studio > 0) legenda += `<span style="background:#d4e6f1;color:black;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("studio")}</span>`;
-  if (somatico > 0) legenda += `<span style="background:gold;color:black;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("som")}</span>`;
-  if (extraValido > 0) legenda += `<span style="background:violet;color:black;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("extra")}</span>`;
-  if (totale < 72) legenda += `<span style="background:#ccc;color:black;padding:2px 8px;border-radius:8px;margin-right:5px">${getLegendText("missing")}</span>`;
-  legenda += `</div>`;
-
-  // Funzione legenda
-  function getLegendText(key) {
-    const lang = getCurrentLang();
-    const t = translations[lang];
-    switch(key) {
-      case "ospA": return t.catAOsp;
-      case "ospB": return t.catBOsp;
-      case "ospC": return t.catCOsp;
-      case "ambA": return t.catAAmb;
-      case "ambB": return t.catBAmb;
-      case "ambC": return t.catCAmb;
-      case "studio": return t.tipoStudio;
-      case "som": return t.tipoSomatico;
-      case "extra": return lang === "de" ? "Extra" : (lang === "fr" ? "Extra" : "Extra");
-      case "missing": return lang === "de" ? "Fehlende Monate" : (lang === "fr" ? "Mois manquants" : "Mesi mancanti");
-      default: return key;
-    }
-  }
-
-  // Report mancanze ed eccedenze
-  function generaReport(cat, ospA, ambA, somatico, totaleOsp, totaleAmb, extra, ospedalieroValido, ambulatorialeValido, extraValido) {
-    let report = `<h3 style="color:coral">${t.gapsAndExcess}</h3><ul>`;
-
-    if (ospA < 12) report += `<li>${tReplace(t.missingOspA, { n: Math.round(12 - ospA) })}</li>`;
-
-    if (totaleOsp < 24) report += `<li>${tReplace(t.missingTotOsp, { n: Math.round(24 - totaleOsp) })}</li>`;
-
-    if (ambA < 12) report += `<li>${tReplace(t.missingAmbA, { n: Math.round(12 - ambA) })}</li>`;
-
-    if (totaleAmb < 24) report += `<li>${tReplace(t.missingTotAmb, { n: Math.round(24 - totaleAmb) })}</li>`;
-
-    if (somatico < 12) report += `<li>${tReplace(t.missingSom, { n: Math.round(12 - somatico) })}</li>`;
-
-    if (totaleOsp > 36) report += `<li>${tReplace(t.tooManyOsp, { n: Math.round(totaleOsp - 36) })}</li>`;
-
-    if (totaleAmb > 36) report += `<li>${tReplace(t.tooManyAmb, { n: Math.round(totaleAmb - 36) })}</li>`;
-
-    if (extra > 12) report += `<li>${tReplace(t.tooManyExtra, { n: Math.round(extra - 12) })}</li>`;
-
-    const totalePsichiatriaExtra = ospedalieroValido + ambulatorialeValido + extraValido;
-    if (totalePsichiatriaExtra < (ospedalieroValido + ambulatorialeValido + extra)) {
-      const taglio = Math.round((ospedalieroValido + ambulatorialeValido + extra) - totalePsichiatriaExtra);
-      report += `<li>${tReplace(t.excludedByLimit, { n: taglio })}</li>`;
-    }
-
-    report += '</ul>';
-    return report;
-  }
-
-  // Stampa risultato
-  document.getElementById("risultato").innerHTML = barraHTML + legenda + `<p><strong>${tReplace(t.validMonths, { v: totale.toFixed(1) })}</strong></p>`
- + generaReport(cat, ospA, ambA, somatico, totaleOsp, totaleAmb, extra, ospedalieroValido, ambulatorialeValido, extraValido);
-};
 
 
-  // Prima render (se ci sono dati salvati)
-    // Prima render (se ci sono dati salvati)
-  renderPeriods();
 
-  // --- Validazione input fissi (crediti/supervisioni: 0-500) ---
-  [
-    'creditiTeorici',
-    'creditiPsy',
-    'creditiCong',
-    'supIPPB',
-    'supWeiter',
-    'supSingolo',
-    'supGruppo'
-  ].forEach(id => {
-    const input = document.getElementById(id);
-    const errorSpan = input.nextElementSibling;
-    input.oninput = function() {
-      let v = parseInt(input.value, 10);
-      if (isNaN(v) || v < 0 || v > 500) {
-        errorSpan.textContent = 'Value must be between 0 and 500';
-        errorSpan.style.display = 'block';
-        input.classList.add('error');
-      } else {
-        errorSpan.textContent = '';
-        errorSpan.style.display = 'none';
-        input.classList.remove('error');
-      }
-    };
-  });
 
-  document.getElementById('languageSwitcher').addEventListener('change', e => {
-    const lang = e.target.value;
-    localStorage.setItem('selectedLanguage', lang);
-    updateLanguage(lang);
-    document.getElementById('languageSwitcher').value = lang;
-  });
 
-  const savedLang = localStorage.getItem('selectedLanguage') || 'de';
-  updateLanguage(savedLang);
-  document.getElementById('languageSwitcher').value = savedLang;
-
-  renderPeriods();
-});
-
-</script>
-<footer style="text-align:center; font-size:0.85em; color:#555; padding:20px; margin-top:40px;">
-<p>
-    The code was created and licensed to the association by Dr. Davide Zani. For feedback or permission requests, contact <a href="mailto:info@svpa-asmap.ch">info@svpa-asmap.ch</a>. Reuse, redistribution, commercial use, or modification is not permitted without express authorization. 
-  </p>
-<p>
-  © 2025 
-  <a href="https://svpa-asmap.ch" target="_blank" rel="noopener noreferrer">SVPA-ASMAP-ASAP</a>
-  — This educational tool is protected by Swiss copyright law (Art. 2 URG, SR 231.1). Licensed under 
-  <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noopener noreferrer">
-    Creative Commons BY-NC-ND 4.0
-  </a>.
-</p>
-<p>
-  <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noopener noreferrer">
-    <img src="https://licensebuttons.net/l/by-nc-nd/4.0/88x31.png" alt="CC BY-NC-ND 4.0" style="border:none;">
-  </a>
-</p>
-
-</footer>
-</body>
+  </body>
 </html>
