@@ -31,7 +31,9 @@
   <head>
     <meta charset="UTF-8">
     <title id="pageTitle">Berechnung des Weiterbildungsfortschritts</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 
     <style>
@@ -52,7 +54,7 @@
         border-radius: 32px;
         box-shadow: 0 4px 28px rgba(60,40,90,0.10);
         color: #352682;
-        font-family: 'Montserrat', sans-serif;
+        font-family: sans-serif;
       }
     
 
@@ -1631,40 +1633,91 @@
       document.getElementById('languageSwitcher').value = savedLang;
 
 
-      function printPDF() {
-  // Aggiorna i risultati
-  document.getElementById('pdfRisultato1').innerHTML = document.getElementById('risultato').innerHTML || '';
-  document.getElementById('pdfRisultato2').innerHTML = document.getElementById('creditiOutput').innerHTML || '';
+      async function printPDF() {
+        updateResultsUI();
 
-  var box = document.getElementById('pdfExportBox');
-  box.style.display = "block";
-  // Tienilo fuori dallo schermo, ma visibile
-  box.style.position = "fixed";
-  box.style.left = "-9999px";
-  box.style.top = "0";
-  // Rimuovi classi che potrebbero nasconderlo
-  box.classList.remove("offscreen");
+        document.getElementById('pdfTitle').textContent =
+        document.getElementById('headerTitle').textContent;
+        document.getElementById('pdfSubtitle').textContent =
+        document.getElementById('headerSubtitle').textContent;
 
-  setTimeout(() => {
-    html2pdf().from(box).set({
-      margin: 0,
-      filename: 'progress_report.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: "#fff" },
-      jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' }
-    }).save().then(() => {
-      // Dopo la stampa puoi rinascondere il box
-      box.style.display = "none";
-      box.classList.add("offscreen");
-    });
-  }, 500); // mezzo secondo basta
-}
+        const dest1 = document.getElementById('pdfRisultato1');
+        const dest2 = document.getElementById('pdfRisultato2');
+        const dest3 = document.getElementById('pdfRisultato3');
 
+        dest1.innerHTML = document.getElementById('risultato').innerHTML || '';
+        dest2.innerHTML = document.getElementById('creditiOutput').innerHTML || '';
+        dest3.innerHTML = document.getElementById('supervisionOutput').innerHTML || '';
 
+        const pdfBox = document.getElementById('pdfExportBox');
+        pdfBox.classList.remove('offscreen');
+        pdfBox.style.display = 'block';
+        pdfBox.style.position = 'relative';
+        pdfBox.style.left = '0';
 
+        if (document.fonts && document.fonts.ready) {
+          await document.fonts.ready;
+        }
+
+        await new Promise(req => requestAnimationFrame(() => req()));
+
+        const canvas = await html2canvas(pdfBox, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: '#ffffff',
+          scrollX: 0,
+          scrollY: 0,
+          windowWidth: pdfBox.scrollWidth,
+          windowHeight: pdfBox.scrollHeight,
+          logging: true
+        });
+
+        // DEBUG ─ append canvas preview; comment out later if desired
+        // document.body.appendChild(canvas);
+
+        // 7. Add captured image to jsPDF
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+        const pdf = new jspdf.jsPDF({
+          unit: 'pt',
+          format: 'a4',
+          orientation: 'portrait'
+        });
+
+        const pageWidth  = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+
+        // Compute scale so we fit width
+        const imgWidth  = pageWidth;
+        const imgHeight = canvas.height * (pageWidth / canvas.width);
+
+        let posY = 0;
+        let remainingHeight = imgHeight;
+
+        // Add pages as needed
+        let page = 0;
+        while (remainingHeight > 0) {
+          if (page > 0) pdf.addPage();
+          pdf.addImage(
+            imgData,
+            'JPEG',
+            0,
+            posY ? -(posY) : 0,
+            imgWidth,
+            imgHeight
+          );
+          remainingHeight -= pageHeight;
+          posY += pageHeight;
+          page++;
+        }
+
+        pdf.save('Training_progress_report_GAP_SVPA-ASMAP-ASAP.pdf');
+
+        pdfBox.classList.add('offscreen');
+        pdfBox.style.display = 'none';
+      }
 
       document.getElementById('pdfButton').onclick = printPDF;
-
 
       renderPeriods();
       });
@@ -1673,10 +1726,12 @@
 
     <footer style="text-align:center; font-size:0.85em; color:#555; padding:20px; margin-top:40px;">
       <p>
-        The code was created and licensed to the association by Dr. Davide Zani. For feedback or permission requests, contact <a href="mailto:info@svpa-asmap.ch">info@svpa-asmap.ch</a>. Reuse, redistribution, commercial use, or modification is not permitted without express authorization. 
-
+        The code was created and licensed to the association by Dr. Davide Zani. For feedback or permission requests, 
+        contact <a href="mailto:info@svpa-asmap.ch">info@svpa-asmap.ch</a>. 
+        Reuse, redistribution, commercial use, or modification is not permitted without express authorization. 
+        <br><br> © 2025
         <a href="https://svpa-asmap.ch" target="_blank" rel="noopener noreferrer">SVPA-ASMAP-ASAP</a>
-        — This educational tool is protected by Swiss copyright law (Art. 2 URG, SR 231.1). Licensed under 
+        <br>This educational tool is protected by Swiss copyright law (Art. 2 URG, SR 231.1). Licensed under 
         <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noopener noreferrer">
           Creative Commons BY-NC-ND 4.0
         </a>.
@@ -1692,16 +1747,11 @@
     
     
     <div id="pdfExportBox" class="offscreen">
-      <h1 style="text-align: center; color:#352682; font-size: 2.3em; font-weight: 900; margin-bottom: 12px;">
-        Calcolo Avanzamento Formazione
-      </h1>
-      <h2 style="text-align: center; color:#352682; font-size: 1.22em; font-weight: 500; margin-bottom: 32px;">
-        Psichiatria e Psicoterapia degli Adulti
-      </h2>
-      <div id="pdfRisultato1" class="section" style="margin-bottom: 34px;">
-      </div>
-      <div id="pdfRisultato2" class="section" style="margin-bottom: 28px;">
-      </div>
+      <h1 id="pdfTitle" style="text-align: center; color:#352682; font-size: 2.3em; font-weight: bold; margin-bottom: 12px; font-family: sans-serif;"></h1>
+      <h2 id="pdfSubtitle" style="text-align: center; color:#352682; font-size: 1.22em; font-weight: 500; margin-bottom: 32px; font-family: sans-serif;"></h2>
+      <div id="pdfRisultato1" style="margin-bottom:34px"></div>
+      <div id="pdfRisultato2" style="margin-bottom:28px"></div>
+      <div id="pdfRisultato3" style="margin-bottom:28px"></div>
     </div>
 
 
