@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Swiss Cantons Map</title>
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-sA+pmUwHeIrtXXgqZGt3gPz4pmBMOPFpQ3VIQepQFNk="
+  crossorigin=""
+/>
+<style>
+  body {
+    margin: 0;
+    font-family: sans-serif;
+  }
+  #map {
+    height: 500px;
+  }
+  #info {
+    padding: 8px;
+  }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="info">Hover over a canton</div>
+<script
+  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-o9N1jRVvxP4SkL7jEKKKx4HxY8T9vrFica8tMT0w0zU="
+  crossorigin=""
+></script>
+<script>
+  var map = L.map('map').setView([46.8, 8.3], 8);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 12,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  function highlightFeature(e) {
+    var layer = e.target;
+    layer.setStyle({
+      weight: 3,
+      color: '#666',
+      fillOpacity: 0.7
+    });
+    layer.bringToFront();
+    document.getElementById('info').textContent = layer.feature.properties.name;
+  }
+
+  function resetHighlight(e) {
+    cantons.resetStyle(e.target);
+    document.getElementById('info').textContent = 'Hover over a canton';
+  }
+
+  function onEachFeature(feature, layer) {
+    layer.on({
+      mouseover: highlightFeature,
+      mouseout: resetHighlight
+    });
+  }
+
+  var cantons = L.geoJSON(null, {
+    style: {
+      color: '#2b8a3e',
+      weight: 1,
+      fillColor: '#74c69d',
+      fillOpacity: 0.5,
+      lineJoin: 'round',
+      smoothFactor: 1.2
+    },
+    onEachFeature: onEachFeature
+  }).addTo(map);
+
+  fetch('https://raw.githubusercontent.com/interactivethings/swiss-maps/master/dist/geojson/ch-cantons.geojson')
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      cantons.addData(data);
+      map.fitBounds(cantons.getBounds());
+    })
+    .catch(function(err) {
+      document.getElementById('info').textContent = 'Failed to load cantons: ' + err;
+    });
+</script>
+</body>
+</html>
