@@ -539,7 +539,6 @@
           pensumPlaceholder: 'Pensum in % eingeben',
           workTitle: "Arbeitstätigkeit",
           creditsTitle: "Ausbildungscredits",
-          supervisionTitle: "Supervisionen",
           validMonths: "{v} / 72 gültige Monate",
           comments: "Kommentare",
           formErrors: "Fehler im Formular:",
@@ -668,7 +667,6 @@
           pensumPlaceholder: 'Entrer le pensum en %',
           workTitle: "Activité professionnelle",
           creditsTitle: "Crédits de formation",
-          supervisionTitle: "Supervisions",
           validMonths: "{v} / 72 mois valides",
           comments: "Commentaires",
           formErrors: "Erreurs dans le formulaire :",
@@ -795,7 +793,6 @@
           pensumPlaceholder: 'Inserisci il pensum in %',
           workTitle: "Attività lavorativa",
           creditsTitle: "Crediti di Formazione",
-          supervisionTitle: "Supervisioni",
           validMonths: "{v} / 72 mesi validi",
           comments: "Commento",
           formErrors: "Errori nel form:",
@@ -827,9 +824,6 @@
           creditiMissingPsy: n => `Ti mancano ancora <b>${n}</b> crediti di formazione psicoterapeutica.`,
           creditiMissingCong: n => `Ti mancano ancora <b>${n}</b> crediti di congressi, workshop e corsi.`,
           creditiMissingIntro: "Devi ancora frequentare i corsi introduttivi alla psicoterapia (inclusi nei 240 crediti di base).",
-          labelCorsoCog: 'cognitivo-comportamentale',
-          labelCorsoPsy: 'psicodinamica/psicoanalitica',
-          labelCorsoSis: 'sistemica',
           creditiMissingIntroSome: mancanti => `Devi ancora frequentare i seguenti corsi di introduzione alla psicoterapia: <b>${mancanti.join(', ')}</b> secondo programma 2009 oppure il nuovo corso completo da 40 crediti secondo programma 2024.`,
           creditiMissingIntro2024: n => `Ti mancano ancora <b>${n}</b> crediti nel corso introduttivo alla psicoterapia (programma 2024).`,
           creditiMissingProgram: "Devi rispondere alla domanda sul programma.",
@@ -878,6 +872,10 @@
       function updateLanguage(lang) {
         const t = translations[lang];
         if (!t) return;
+
+        ['intro2009Cog','intro2009Psy','intro2009Sis'].forEach(key => {
+          if (!t[key]) console.warn(`Missing translation for ${key} in ${lang}`);
+        });
 
         document.documentElement.lang = lang;
         document.getElementById('pageTitle').textContent = t.pageTitle;
@@ -1343,15 +1341,14 @@
           }
         });
 
-        const ospA = Math.min(cat.ospA, 36), ospB = Math.min(cat.ospB, 24), ospC = Math.min(cat.ospC, 24), ospOther = cat.ospOther;
-        const ambA = Math.min(cat.ambA, 36), ambB = Math.min(cat.ambB, 24), ambC = Math.min(cat.ambC, 24), ambOther = cat.ambOther;
-        const studio = cat.studio;
+        const ospA = Math.min(cat.ospA, 36), ospB = Math.min(cat.ospB, 24), ospC = Math.min(cat.ospC, 24), ospOther = Math.min(cat.ospOther, 24);
+        const ambA = Math.min(cat.ambA, 36), ambB = Math.min(cat.ambB, 24), ambC = Math.min(cat.ambC, 24), ambOther = Math.min(cat.ambOther, 24);
         const somatico = Math.min(cat.som, 12);
-        const extra = cat.infanzia + cat.ricerca;
+        const extra = cat.infanzia + cat.ricerca + cat.studio;
         let extraValido = Math.min(extra, 12);
 
         const totaleOsp = cat.ospA + cat.ospB + cat.ospC + cat.ospOther;
-        const totaleAmb = cat.ambA + cat.ambB + cat.ambC + cat.ambOther + cat.studio;
+        const totaleAmb = cat.ambA + cat.ambB + cat.ambC + cat.ambOther;
 
         let ospedalieroValido = Math.min(totaleOsp, 36);
         let ambulatorialeValido = Math.min(totaleAmb, 36);
