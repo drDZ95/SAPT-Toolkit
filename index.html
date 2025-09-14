@@ -31,9 +31,7 @@
   <head>
     <meta charset="UTF-8">
     <title id="pageTitle"></title>
-
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -491,9 +489,9 @@
           optProgram2024:'Programm 2024',
           optProgram2009:'Programm 2009',
           labelCorso2024:'Einführungskurs Psychotherapie 2024',
-          intro2009Cog:'Kognitiv-Verhaltenstherapie',
-          intro2009Psy:'Psychodynamisch/Psychoanalytisch',
-          intro2009Sis:'Systemisch',
+          intro2009Cog: "Kognitiv-Verhaltenstherapie (Einführungskurs)",
+          intro2009Psy: "Psychodynamisch (Einführungskurs)",
+          intro2009Sis: "Systemisch (Einführungskurs)",
           labelPsy:'Psychiatrie-Credits',
           labelCong:'Kongress-Credits',
           labelSSPP:'Teilnahme an SSPP',
@@ -618,9 +616,9 @@
           optProgram2024:'Programme 2024',
           optProgram2009:'Programme 2009',
           labelCorso2024:'Cours d’introduction à la psychothérapie 2024',
-          intro2009Cog:'Cognitivo-comportementale',
-          intro2009Psy:'Psychodynamique/psychanalytique',
-          intro2009Sis:'Systémique',
+          intro2009Cog: "Cognitivo-comportemental (cours d’introduction)",
+          intro2009Psy: "Psychodynamique (cours d’introduction)",
+          intro2009Sis: "Systémique (cours d’introduction)",
           labelPsy:'Crédits psychiatrie',
           labelCong:'Crédits congrès',
           labelSSPP:'Participation SSPP',
@@ -746,9 +744,9 @@
           optProgram2024:'Programma 2024',
           optProgram2009:'Programma 2009',
           labelCorso2024:'Corso introduttivo alla psicoterapia 2024',
-          intro2009Cog:'Cognitivo-comportamentale',
-          intro2009Psy:'Psicodinamica/psicoanalitica',
-          intro2009Sis:'Sistemica',
+          intro2009Cog: "Cognitivo-comportamentale (corso introduttivo)",
+          intro2009Psy: "Psicodinamica (corso introduttivo)",
+          intro2009Sis: "Sistemica (corso introduttivo)",
           labelPsy:'Crediti Psichiatria',
           labelCong:'Crediti Congresso',
           labelSSPP:'Partecipazione SSPP',
@@ -1343,15 +1341,14 @@
           }
         });
 
-        const ospA = Math.min(cat.ospA, 36), ospB = Math.min(cat.ospB, 24), ospC = Math.min(cat.ospC, 24), ospOther = cat.ospOther;
-        const ambA = Math.min(cat.ambA, 36), ambB = Math.min(cat.ambB, 24), ambC = Math.min(cat.ambC, 24), ambOther = cat.ambOther;
-        const studio = cat.studio;
+        const ospA = Math.min(cat.ospA, 36), ospB = Math.min(cat.ospB, 24), ospC = Math.min(cat.ospC, 24), ospOther = Math.min(cat.ospOther, 24);
+        const ambA = Math.min(cat.ambA, 36), ambB = Math.min(cat.ambB, 24), ambC = Math.min(cat.ambC, 24), ambOther = Math.min(cat.ambOther, 24);
         const somatico = Math.min(cat.som, 12);
-        const extra = cat.infanzia + cat.ricerca;
+        const extra = cat.infanzia + cat.ricerca + cat.studio;
         let extraValido = Math.min(extra, 12);
 
         const totaleOsp = cat.ospA + cat.ospB + cat.ospC + cat.ospOther;
-        const totaleAmb = cat.ambA + cat.ambB + cat.ambC + cat.ambOther + cat.studio;
+        const totaleAmb = cat.ambA + cat.ambB + cat.ambC + cat.ambOther;
 
         let ospedalieroValido = Math.min(totaleOsp, 36);
         let ambulatorialeValido = Math.min(totaleAmb, 36);
@@ -1397,11 +1394,17 @@
         if (ospAValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ospAValido)}%; background:darkgreen;" title="${t.catAOsp}"></div>`;
         if (ospBValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ospBValido)}%; background:#6fcf97;" title="${t.catBOsp}"></div>`;
         if (ospCValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ospCValido)}%; background:#a8e6cf;" title="${t.catCOsp}"></div>`;
+
         if (ospOtherValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ospOtherValido)}%; background:#82e0aa;" title="${t.catOtherOsp}"></div>`;
         if (ambAValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ambAValido)}%; background:darkblue;" title="${t.catAAmb}"></div>`;
         if (ambBValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ambBValido)}%; background:#5dade2;" title="${t.catBAmb}"></div>`;
         if (ambCValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ambCValido)}%; background:#aed6f1;" title="${t.catCAmb}"></div>`;
         if (ambOtherValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ambOtherValido)}%; background:#85c1e9;" title="${t.catOtherAmb}"></div>`;
+
+        if (ambAValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ambAValido)}%; background:darkblue;" title="${t.catAAmb}"></div>`;
+        if (ambBValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ambBValido)}%; background:#5dade2;" title="${t.catBAmb}"></div>`;
+        if (ambCValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ambCValido)}%; background:#aed6f1;" title="${t.catCAmb}"></div>`;
+
         if (studioValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(studioValido)}%; background:#d4e6f1;" title="${t.tipoStudio}"></div>`;
         if (somatico > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(somatico)}%; background:gold;" title="${t.tipoSomatico}"></div>`;
         if (extraValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(extraValido)}%; background:violet;" title="${t.extraLabel}"></div>`;
@@ -1478,15 +1481,15 @@
         const teoriciBase = parseFloat(document.getElementById('creditiTeorici').value) || 0;
         const program = document.getElementById('introProgram').value;
         let introCrediti = 0;
-        let corsi2009 = null;
+        let corsi2009 = [];
         if (program === '2024') {
           introCrediti = parseFloat(document.getElementById('creditiCorso2024').value) || 0;
         } else if (program === '2009') {
-          corsi2009 = [
-            { id: 'corsoCog', label: t.intro2009Cog },
-            { id: 'corsoPsy', label: t.intro2009Psy },
-            { id: 'corsoSis', label: t.intro2009Sis }
-          ];
+          const corsi2009 = [
+          { id: 'corsoCog', label: t.intro2009Cog },
+          { id: 'corsoPsy', label: t.intro2009Psy },
+          { id: 'corsoSis', label: t.intro2009Sis }
+        ];
           introCrediti = corsi2009.filter(c => document.getElementById(c.id).checked).length * 12;
         }
 
@@ -1522,9 +1525,28 @@
         if (psy < maxPsy) mancanze.push(t.creditiMissingPsy(maxPsy - psy));
         if (cong < maxCong) mancanze.push(t.creditiMissingCong(maxCong - cong));
 
+
         if (program === '2024') {
           if (introCrediti < 40) mancanze.push(t.creditiMissingIntro2024(40 - introCrediti));
         } else if (program === '2009') {
+
+
+        if (program === '2024') {
+          if (introCrediti < 40) mancanze.push(t.creditiMissingIntro2024(40 - introCrediti));
+        } else if (program === '2009') {
+
+        const program = document.getElementById('introProgram').value;
+        if (program === '2024') {
+          const intro = parseFloat(document.getElementById('creditiCorso2024').value) || 0;
+          if (intro < 40) mancanze.push(t.creditiMissingIntro2024(40 - intro));
+        } else if (program === '2009') {
+          const corsi2009 = [
+            { id: 'corsoCog', label: t.labelCorsoCog },
+            { id: 'corsoPsy', label: t.labelCorsoPsy },
+            { id: 'corsoSis', label: t.labelCorsoSis }
+          ];
+
+
           const selezionati2009 = corsi2009.filter(c => document.getElementById(c.id).checked);
           if (selezionati2009.length === 0) {
             mancanze.push(t.creditiMissingIntro);
