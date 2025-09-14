@@ -30,7 +30,9 @@
 
   <head>
     <meta charset="UTF-8">
-    <title id="pageTitle">Berechnung des Weiterbildungsfortschritts</title>
+    <title id="pageTitle"></title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -38,7 +40,7 @@
 
     <style>
       body {
-        font-family: sans-serif;
+        font-family: Montserrat,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
         padding: 20px;
         max-width: 900px;
         margin: auto;
@@ -54,7 +56,7 @@
         border-radius: 32px;
         box-shadow: 0 4px 28px rgba(60,40,90,0.10);
         color: #352682;
-        font-family: sans-serif;
+        font-family: Montserrat,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
       }
     
 
@@ -308,8 +310,8 @@
 
 
     <div id="headerContainer">
-      <h1 id="headerTitle">Berechnung des Weiterbildungsfortschritts</h1>
-      <h2 id="headerSubtitle" style="margin-top:-10px;">Psychiatrie und Psychotherapie bei Erwachsenen</h2>
+      <h1 id="headerTitle"></h1>
+      <h2 id="headerSubtitle" style="margin-top:-10px;"></h2>
     </div>
 
     <p id="disclaimer" style="text-align:center; font-size:0.9em; color:#666; max-width: 700px; margin: 10px auto 20px;"></p>
@@ -347,7 +349,7 @@
     <h2 id="creditsTitle"></h2>
 
     <div class="centered-button">
-      <button id="addCreditSectionBtn">➕ Aggiungi crediti</button>
+      <button id="addCreditSectionBtn"></button>
     </div>
 
     <div id="creditSectionTeorici" class="section"style="display:none; position:relative;">
@@ -356,8 +358,17 @@
       <input type="number" id="creditiTeorici" min="0" max="500" placeholder="0">
       <span class="input-error" style="display:none;color:#dc3545;font-size:0.98em;margin-top:2px"></span>
       <div class="small-title" id="introTitle"></div>
-      <div class="checkbox-group">
-        <label><input type="checkbox" id="corso2024"><span id="labelCorso2024"></span></label>
+      <label id="introProgramLabel" for="introProgram"></label>
+      <select id="introProgram">
+        <option value=""></option>
+        <option value="2024"></option>
+        <option value="2009"></option>
+      </select>
+      <div id="intro2024Fields" style="display:none; margin-top:8px;">
+        <label for="creditiCorso2024" id="labelCorso2024"></label>
+        <input type="number" id="creditiCorso2024" min="1" max="50" placeholder="0">
+      </div>
+      <div id="intro2009Fields" class="checkbox-group" style="display:none; margin-top:8px;">
         <label><input type="checkbox" id="corsoCog"><span id="labelCorsoCog"></span></label>
         <label><input type="checkbox" id="corsoPsy"><span id="labelCorsoPsy"></span></label>
         <label><input type="checkbox" id="corsoSis"><span id="labelCorsoSis"></span></label>
@@ -388,7 +399,7 @@
     <h2 id="supervisionTitle"></h2>
 
     <div class="centered-button">
-      <button id="addSupervisionSectionBtn">➕ Aggiungi supervisioni</button>
+      <button id="addSupervisionSectionBtn"></button>
     </div>
 
     <div id="supervisionSection" class="section" style="display:none; position:relative;">
@@ -433,7 +444,7 @@
       <button id="calcBtn" style="display:none"></button>
     </div>
 
-    <button id="pdfButton" style="display:none; margin-bottom: 20px;">📄 Download PDF</button>
+    <button id="pdfButton" style="display:none; margin-bottom: 20px;"></button>
 
     <h2 id="resultHeader" style="display:none"></h2>
 
@@ -446,7 +457,7 @@
 
     <div id="supervisionOutput"></div>
 
-    <button id="clearButton">🗑️ Clear All</button>
+    <button id="clearButton"></button>
 
     <script>
       document.addEventListener('DOMContentLoaded', () => {
@@ -458,6 +469,10 @@
           headerSubtitle:'Psychiatrie und Psychotherapie bei Erwachsenen',
           disclaimer: 'Dieses Tool wird kostenlos angeboten von der Schweizerischen Vereinigung der Assistenzärztinnen und -ärzte in Psychiatrie (SVPA-ASMAP-ASAP). Das Tool basiert auf der Interpretation der Weiterbildungsprogramme des ISFM-FMH. Die Vereinigung und ihre Mitglieder übernehmen keine Verantwortung bei allfälligen Rechenfehlern. Es wird empfohlen, sich stets auf die offiziellen ISFM-FMH-Dokumente zu beziehen.',
           addPeriod:'➕ Periode hinzufügen',
+          addCredits:'➕ Credits hinzufügen',
+          addSupervisions:'➕ Supervisionen hinzufügen',
+          downloadPdf:'📄 PDF herunterladen',
+          clearAll:'🗑️ Alles löschen',
           questionGerontoPsy: 'Min. 6 Monate Gerontopsychiatrie?',
           optNoG:'Nein',
           optSiG:'Ja',
@@ -466,7 +481,10 @@
           optSi:'Ja',
           labelTeorici:'Theoretische Credits',
           introTitle:'Einführung in Modelle',
-          labelCorso2024:'Kurs 2024',
+          introProgramQuestion:'Nach welchem Programm streben Sie den Facharzttitel an?',
+          optProgram2024:'Programm 2024',
+          optProgram2009:'Programm 2009',
+          labelCorso2024:'Einführungskurs Psychotherapie 2024',
           labelCorsoCog:'Kognitives Seminar',
           labelCorsoPsy:'Psychodynamischer Kurs',
           labelCorsoSis:'Systemischer Workshop',
@@ -512,6 +530,11 @@
           validMonths: "{v} / 72 gültige Monate",
           comments: "Kommentare",
           formErrors: "Fehler im Formular:",
+          removePeriod:'Zeitraum entfernen',
+          extraLabel:'Extra',
+          missingMonths:'Fehlende Monate',
+          periodsNoMissing:'✅ Keine Lücken in den eingegebenen Zeiträumen.',
+          creditsNoMissing:'✅ Keine Lücken in den eingegebenen Credits.',
           gerontoComment: "Die Min. 6 obligatorischen Monate in der Gerontopsychiatrie fehlen noch.",
           cambioCentroComment: "Wechsel der Weiterbildungsstätte gemäss Art. 2.1.2 erforderlich.",
           missingOspA: "Es fehlen {n} Monate in Kategorie A stationär (mindestens 12)",
@@ -539,6 +562,8 @@
           labelCorsoPsy: 'Psychodynamisch/Psychoanalytisch',
           labelCorsoSis: 'Systemisch',
           creditiMissingIntroSome: mancanti => `Du musst noch die folgende Einführungskurse in Psychotherapie besuchen: <b>${mancanti.join(', ')}</b> gemäss Weiterbildungsprogramm 2009 oder den neuen 40-Credit-Kurs gemäss Weiterbildungsprogramm 2024`,
+          creditiMissingIntro2024: n => `Es fehlen noch <b>${n}</b> Credits im Einführungskurs Psychotherapie (Programm 2024).`,
+          creditiMissingProgram: "Du musst die Frage zum Programm beantworten.",
           creditiMissingSSPP: "Du hast die Frage zur Teilnahme am SGPP-Kongress nicht beantwortet",
           creditiMissingSSPPNo: "Du musst die vollständige Teilnahme am jährlichen SSPP-Kongress nachweisen",
           supervisionTitle: "Erforderliche Supervisionen",
@@ -566,6 +591,10 @@
           headerSubtitle:'Psychiatrie et psychothérapie des adultes',
           disclaimer: 'Cet outil est proposé gratuitement par l\'Association Suisse des Assistant·e·s en Psychiatrie (SVPA-ASMAP-ASAP). L\'outil est basé sur l\'interprétation des programmes de formation de l\'ISFM-FMH. L\'association et ses membres déclinent toute responsabilité en cas d\'erreurs de calcul. Il est recommandé de toujours se référer aux documents officiels de l\'ISFM-FMH.',
           addPeriod:'➕ Ajouter une période',
+          addCredits:'➕ Ajouter des crédits',
+          addSupervisions:'➕ Ajouter des supervisions',
+          downloadPdf:'📄 Télécharger le PDF',
+          clearAll:'🗑️ Tout effacer',
           questionGerontoPsy: 'Min. 6 mois de géronto-psychiatrie ?',
           optNoG:'Non',
           optSiG:'Oui',
@@ -574,7 +603,10 @@
           optSi:'Oui',
           labelTeorici:'Crédits théoriques',
           introTitle:'Introduction modèles',
-          labelCorso2024:'Cours 2024',
+          introProgramQuestion:'Selon quel programme poursuivez-vous le titre de spécialiste ?',
+          optProgram2024:'Programme 2024',
+          optProgram2009:'Programme 2009',
+          labelCorso2024:'Cours d’introduction à la psychothérapie 2024',
           labelCorsoCog:'Séminaire cognitif',
           labelCorsoPsy:'Cours psychodynamique',
           labelCorsoSis:'Atelier systémique',
@@ -621,6 +653,11 @@
           validMonths: "{v} / 72 mois valides",
           comments: "Commentaires",
           formErrors: "Erreurs dans le formulaire :",
+          removePeriod:'Supprimer la période',
+          extraLabel:'Extra',
+          missingMonths:'Mois manquants',
+          periodsNoMissing:'✅ Aucune lacune dans les périodes saisies.',
+          creditsNoMissing:'✅ Aucune lacune dans les crédits saisis.',
           gerontoComment: "Les 6 mois obligatoires en géronto-psychiatrie manquent encore.",
           cambioCentroComment: "Changement de centre de formation selon l’art. 2.1.2 requis.",
           missingOspA: "Il manque {n} mois en hospitalier catégorie A (minimum 12)",
@@ -648,6 +685,8 @@
           labelCorsoPsy: 'Psychodynamique/psychanalytique',
           labelCorsoSis: 'Systémique',
           creditiMissingIntroSome: mancanti => `Vous devez encore suivre les cours d’introduction à la psychothérapie suivants : <b>${mancanti.join(', ')}</b> selon le programme 2009 ou bien le nouveau cours complet de 40 crédits du programme 2024.`,
+          creditiMissingIntro2024: n => `Il vous manque encore <b>${n}</b> crédits dans le cours d’introduction à la psychothérapie (programme 2024).`,
+          creditiMissingProgram: "Vous devez répondre à la question sur le programme.",
           creditiMissingSSPP: "Vous devez répondre à la question sur la participation complète au congrès annuel de la SSPP.",
           creditiMissingSSPPNo: "La participation complète obligatoire au congrès annuel de la SSPP n’a pas encore été effectuée.",
           supervisionTitle: "Supervisions requises",
@@ -675,6 +714,10 @@
           headerSubtitle:'Psichiatria e Psicoterapia degli Adulti',
           disclaimer: 'Questo Tool è gratuitamente offerto dalla Associazione Svizzera degli Assistenti in Psichiatria (SVPA-ASMAP-ASAP). Il Tool è basato sull\'interpretazione dei programmi di formazione ISFM-FMH. L’associazione e i suoi membri non si ritengono responsabili in caso di errori di conteggio. Si raccomanda di fare sempre riferimento ai documenti ufficiali ISFM-FMH.',
           addPeriod:'➕ Aggiungi periodo',
+          addCredits:'➕ Aggiungi crediti',
+          addSupervisions:'➕ Aggiungi supervisioni',
+          downloadPdf:'📄 Scarica PDF',
+          clearAll:'🗑️ Pulisci tutto',
           questionGerontoPsy: 'Min. 6 mesi di gerontopsichiatria?',
           questionCambioCentro:'Art. 2.1.2: Durante la formazione hai cambiato centro?',
           optNoG:'No',
@@ -683,7 +726,10 @@
           optSi:'Sì',
           labelTeorici:'Crediti teorici',
           introTitle:'Introduzione modelli psicoterapeutici',
-          labelCorso2024:'Corso 2024',
+          introProgramQuestion:'Secondo quale programma stai perseguendo il titolo di specialista?',
+          optProgram2024:'Programma 2024',
+          optProgram2009:'Programma 2009',
+          labelCorso2024:'Corso introduttivo alla psicoterapia 2024',
           labelCorsoCog:'Seminario cognitivo',
           labelCorsoPsy:'Corso psicodinamico',
           labelCorsoSis:'Workshop sistemico',
@@ -728,6 +774,11 @@
           validMonths: "{v} / 72 mesi validi",
           comments: "Commento",
           formErrors: "Errori nel form:",
+          removePeriod:'Rimuovi periodo',
+          extraLabel:'Extra',
+          missingMonths:'Mesi mancanti',
+          periodsNoMissing:'✅ Non ci sono mancanze nei periodi inseriti.',
+          creditsNoMissing:'✅ Non ci sono mancanze nei crediti inseriti.',
           gerontoComment: "Mancano ancora i min. 6 mesi obbligatori in gerontopsichiatria.",
           cambioCentroComment: "È necessario il cambio del centro di formazione secondo l’Art. 2.1.2.",
           missingOspA: "Mancano {n} mesi in Ospedaliero categoria A (minimo 12)",
@@ -755,6 +806,8 @@
           labelCorsoPsy: 'psicodinamica/psicoanalitica',
           labelCorsoSis: 'sistemica',
           creditiMissingIntroSome: mancanti => `Devi ancora frequentare i seguenti corsi di introduzione alla psicoterapia: <b>${mancanti.join(', ')}</b> secondo programma 2009 oppure il nuovo corso completo da 40 crediti secondo programma 2024.`,
+          creditiMissingIntro2024: n => `Ti mancano ancora <b>${n}</b> crediti nel corso introduttivo alla psicoterapia (programma 2024).`,
+          creditiMissingProgram: "Devi rispondere alla domanda sul programma.",
           creditiMissingSSPP: "Devi rispondere alla partecipazione completa al congresso annuale SSPP.",
           creditiMissingSSPPNo: "Devi ancora effettuare una partecipazione completa obbligatoria al congresso annuale della SSPP.",
           supervisionTitle: "Supervisioni richieste",
@@ -807,6 +860,10 @@
         document.getElementById('headerSubtitle').textContent = t.headerSubtitle;
         document.getElementById('disclaimer').innerHTML = t.disclaimer;
         document.getElementById('addPeriodBtn').textContent = t.addPeriod;
+        document.getElementById('addCreditSectionBtn').textContent = t.addCredits;
+        document.getElementById('addSupervisionSectionBtn').textContent = t.addSupervisions;
+        document.getElementById('pdfButton').textContent = t.downloadPdf;
+        document.getElementById('clearButton').textContent = t.clearAll;
         document.getElementById('labelGerontoPsy').textContent = t.questionGerontoPsy;
         document.getElementById('labelCambioCentro').textContent = t.questionCambioCentro;
         document.getElementById('workTitle').textContent = t.workTitle;
@@ -825,6 +882,11 @@
 
         document.getElementById('labelTeorici').textContent = t.labelTeorici;
         document.getElementById('introTitle').textContent = t.introTitle;
+        document.getElementById('introProgramLabel').textContent = t.introProgramQuestion;
+        const introSel = document.getElementById('introProgram');
+        introSel.options[0].textContent = t.selectPrompt;
+        introSel.options[1].textContent = t.optProgram2024;
+        introSel.options[2].textContent = t.optProgram2009;
         document.getElementById('labelCorso2024').textContent = t.labelCorso2024;
         document.getElementById('labelCorsoCog').textContent = t.labelCorsoCog;
         document.getElementById('labelCorsoPsy').textContent = t.labelCorsoPsy;
@@ -870,13 +932,15 @@
           document.getElementById(id).style.display = 'none';
         });
         creditiMostrati = false;
-        ['creditiTeorici','creditiPsy','creditiCong','corso2024','corsoCog','corsoPsy','corsoSis','partecipazioneSSPP'].forEach(id => {
+        ['creditiTeorici','creditiPsy','creditiCong','creditiCorso2024','corsoCog','corsoPsy','corsoSis','introProgram','partecipazioneSSPP'].forEach(id => {
           const el = document.getElementById(id);
           if (!el) return;
           if (el.type === 'checkbox') el.checked = false;
           else if (el.tagName === 'SELECT') el.selectedIndex = 0;
           else el.value = '';
         });
+        document.getElementById('intro2024Fields').style.display = 'none';
+        document.getElementById('intro2009Fields').style.display = 'none';
         document.getElementById('addCreditSectionBtn').style.display = 'inline-block';
         checkShowCalcButton();
         updateResultsUI();
@@ -899,14 +963,14 @@
       };
 
       function isVisible(el) {
-        // True se l'elemento è visibile nel DOM
+        // Return true if the element is visible in the DOM
         return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
       }
 
       function checkShowCalcButton() {
         let someInput = false;
 
-        // Periodi di lavoro (basta che ci sia almeno uno inserito)
+        // Work periods (at least one must be entered)
         if (periodsData.some(p =>
           p.tipoAttivita ||
           p.categoria ||
@@ -914,7 +978,7 @@
           (p.pensum && p.pensum !== '')
         )) someInput = true;
 
-        // Crediti: controlla SOLO sezione crediti visibile
+        // Credits: check only the visible credit section
         ['creditSectionTeorici', 'creditSectionPsy', 'creditSectionCong'].forEach(sectionId => {
           const section = document.getElementById(sectionId);
           if (section && isVisible(section)) {
@@ -929,7 +993,7 @@
           }
         });
 
-        // Supervisioni: controlla SOLO sezione visibile
+        // Supervisions: check only the visible section
         ['supervisionSection', 'PsysupervisionSection'].forEach(sectionId => {
           const section = document.getElementById(sectionId);
           if (section && isVisible(section)) {
@@ -950,7 +1014,7 @@
             const idx = +e.target.closest('.periodo').dataset.idx;
             periodsData.splice(idx, 1);
             renderPeriods();
-            // Nascondi il box se tutti i periodi sono stati rimossi
+            // Hide the box if all periods have been removed
             const domandeBox = document.getElementById('DomcambioCentro');
             if (periodsData.length === 0) {
               domandeBox.style.display = "none";
@@ -975,7 +1039,7 @@
           div.className = 'periodo';
           div.dataset.idx = idx; 
           div.innerHTML = `
-            <button type="button" class="remove-period-btn" title="Rimuovi periodo">✖</button>
+            <button type="button" class="remove-period-btn" title="${t.removePeriod}">✖</button>
 
             <label>
               <select class="tipo-attivita">
@@ -1015,7 +1079,7 @@
             const domandeBox = document.getElementById('DomcambioCentro');
             if (periodsData.length === 0) {
               domandeBox.style.display = "none";
-              primaAggiunta = true; // così quando riaggiungi un periodo il box ricompare
+              primaAggiunta = true; // so when a period is re-added the box reappears
             }
           container.appendChild(div);
         });
@@ -1290,16 +1354,16 @@
 
         const bar = x => (x / 72) * 100;
         html1 += `<div class="stacked-bar-container" style="display:flex;height:20px;width:100%;border-radius:10px;overflow:hidden;margin-bottom:12px">`;
-        if (ospAValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ospAValido)}%; background:darkgreen;" title="Ospedaliero A"></div>`;
-        if (ospBValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ospBValido)}%; background:#6fcf97;" title="Ospedaliero B"></div>`;
-        if (ospCValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ospCValido)}%; background:#a8e6cf;" title="Ospedaliero C"></div>`;
-        if (ambAValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ambAValido)}%; background:darkblue;" title="Ambulatoriale A"></div>`;
-        if (ambBValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ambBValido)}%; background:#5dade2;" title="Ambulatoriale B"></div>`;
-        if (ambCValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ambCValido)}%; background:#aed6f1;" title="Ambulatoriale C"></div>`;
-        if (studioValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(studioValido)}%; background:#d4e6f1;" title="Studio Medico"></div>`;
-        if (somatico > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(somatico)}%; background:gold;" title="Somatico"></div>`;
-        if (extraValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(extraValido)}%; background:violet;" title="Extra"></div>`;
-        if (totale < 72) html1 += `<div class="stacked-bar-segment" style="width:${bar(72 - totale)}%; background:#ccc;" title="Mesi mancanti"></div>`;
+        if (ospAValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ospAValido)}%; background:darkgreen;" title="${t.catAOsp}"></div>`;
+        if (ospBValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ospBValido)}%; background:#6fcf97;" title="${t.catBOsp}"></div>`;
+        if (ospCValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ospCValido)}%; background:#a8e6cf;" title="${t.catCOsp}"></div>`;
+        if (ambAValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ambAValido)}%; background:darkblue;" title="${t.catAAmb}"></div>`;
+        if (ambBValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ambBValido)}%; background:#5dade2;" title="${t.catBAmb}"></div>`;
+        if (ambCValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ambCValido)}%; background:#aed6f1;" title="${t.catCAmb}"></div>`;
+        if (studioValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(studioValido)}%; background:#d4e6f1;" title="${t.tipoStudio}"></div>`;
+        if (somatico > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(somatico)}%; background:gold;" title="${t.tipoSomatico}"></div>`;
+        if (extraValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(extraValido)}%; background:violet;" title="${t.extraLabel}"></div>`;
+        if (totale < 72) html1 += `<div class="stacked-bar-segment" style="width:${bar(72 - totale)}%; background:#ccc;" title="${t.missingMonths}"></div>`;
         html1 += `</div>`;
 
         html1 += `<div class="legenda" style="margin-bottom:16px">`;
@@ -1311,8 +1375,8 @@
         if (ambC > 0) html1 += `<span style="background:#aed6f1;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${t.catCAmb}</span>`;
         if (studio > 0) html1 += `<span style="background:#d4e6f1;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${t.tipoStudio}</span>`;
         if (somatico > 0) html1 += `<span style="background:gold;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${t.tipoSomatico}</span>`;
-        if (extraValido > 0) html1 += `<span style="background:violet;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">Extra</span>`;
-        if (totale < 72) html1 += `<span style="background:#ccc;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${(lang==="de" ? "Fehlende Monate" : (lang==="fr" ? "Mois manquants" : "Mesi mancanti"))}</span>`;
+        if (extraValido > 0) html1 += `<span style="background:violet;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${t.extraLabel}</span>`;
+        if (totale < 72) html1 += `<span style="background:#ccc;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${t.missingMonths}</span>`;
         html1 += `</div>`;
 
         if (ospA < 12) mancanze.push(tReplace(t.missingOspA, { n: Math.round(12 - ospA) }));
@@ -1338,7 +1402,7 @@
           mancanze.forEach(m => html1 += `<li>${m}</li>`);
           html1 += '</ul>';
         } else {
-        html1 += `<p style="color:green"><b>${lang === "it" ? "✅ Non ci sono mancanze nei periodi inseriti." : (lang === "de" ? "✅ Keine Lücken in den eingegebenen Zeiträumen." : "✅ Aucune lacune dans les périodes saisies.")}</b></p>`;
+        html1 += `<p style="color:green"><b>${t.periodsNoMissing}</b></p>`;
         }
 
         document.getElementById('risultato').innerHTML = `<div class="section">${html1}</div>`;
@@ -1399,20 +1463,25 @@
         if (psy < maxPsy) mancanze.push(t.creditiMissingPsy(maxPsy - psy));
         if (cong < maxCong) mancanze.push(t.creditiMissingCong(maxCong - cong));
 
-        const fatto2024 = document.getElementById('corso2024').checked;
-        const corsi2009 = [
-          { id: 'corsoCog', label: t.labelCorsoCog },
-          { id: 'corsoPsy', label: t.labelCorsoPsy },
-          { id: 'corsoSis', label: t.labelCorsoSis }
-        ];
-    
-        const selezionati2009 = corsi2009.filter(c => document.getElementById(c.id).checked);
-
-        if (!fatto2024 && selezionati2009.length === 0) {
-          mancanze.push(t.creditiMissingIntro);
-        } else if (!fatto2024 && selezionati2009.length > 0 && selezionati2009.length < corsi2009.length) {
-          const mancanti = corsi2009.filter(c => !document.getElementById(c.id).checked).map(c => c.label);
-          mancanze.push(t.creditiMissingIntroSome(mancanti));
+        const program = document.getElementById('introProgram').value;
+        if (program === '2024') {
+          const intro = parseFloat(document.getElementById('creditiCorso2024').value) || 0;
+          if (intro < 40) mancanze.push(t.creditiMissingIntro2024(40 - intro));
+        } else if (program === '2009') {
+          const corsi2009 = [
+            { id: 'corsoCog', label: t.labelCorsoCog },
+            { id: 'corsoPsy', label: t.labelCorsoPsy },
+            { id: 'corsoSis', label: t.labelCorsoSis }
+          ];
+          const selezionati2009 = corsi2009.filter(c => document.getElementById(c.id).checked);
+          if (selezionati2009.length === 0) {
+            mancanze.push(t.creditiMissingIntro);
+          } else if (selezionati2009.length < corsi2009.length) {
+            const mancanti = corsi2009.filter(c => !document.getElementById(c.id).checked).map(c => c.label);
+            mancanze.push(t.creditiMissingIntroSome(mancanti));
+          }
+        } else {
+          mancanze.push(t.creditiMissingProgram);
         }
 
     
@@ -1423,46 +1492,46 @@
           mancanze.forEach(m => html2 += `<li>${m}</li>`);
           html2 += `</ul>`;
         } else {
-          html2 += `<p style="color:green"><b>${lang === "it" ? "✅ Non ci sono mancanze nei crediti inseriti." : (lang === "de" ? "✅ Keine Lücken in den eingegebenen Credits." : "✅ Aucune lacune dans les credits saisies.")}</b></p>`;
+          html2 += `<p style="color:green"><b>${t.creditsNoMissing}</b></p>`;
         }
         output.innerHTML = `<div class="section">${html2}</div>`;
       }
 
       function calcolaSupervisioni() {
-        // Identifica entrambe le sezioni di supervisione (devono essere entrambe nascoste per azzerare)
+        // Identify both supervision sections (both must be hidden to reset)
         const sec1 = document.getElementById('supervisionSection');
         const sec2 = document.getElementById('PsysupervisionSection');
         const output = document.getElementById('supervisionOutput');
 
-        // Se entrambe le sezioni non sono visibili, svuota e stoppa
+        // If both sections are not visible, clear and return
         if (!isVisible(sec1) && !isVisible(sec2)) {
           output.innerHTML = '';
           return;
         }
 
-        // Imposta lingua e traduzioni
+        // Set language and translations
         const lang = getCurrentLang();
         const t = translations[lang];
 
-        // Header della sezione supervisioni
+        // Supervision section header
         let html3 = `<h2 class="result-box-title">${t.supervisionTitle}</h2>`;
         let mancanze = [];
 
-        // Recupera valori dagli input
+        // Retrieve values from inputs
         const ippb    = parseFloat(document.getElementById('supIPPB').value)    || 0;
         const coaching = parseFloat(document.getElementById('supWeiter').value) || 0;
         const singolo = parseFloat(document.getElementById('supSingolo').value) || 0;
         const gruppo  = parseFloat(document.getElementById('supGruppo').value)  || 0;
         const change  = document.getElementById('supChange').value;
         const hrs     = document.getElementById('supHrsChange').value;
-
-        // Se campi obbligatori sono assenti o errati, mostra avviso e stoppa
+ 
+        // If required fields are missing or invalid, show warning and return
         if (ippb < 0 || coaching < 0 || singolo < 0 || gruppo < 0 || !change || !hrs) {
           output.innerHTML = `<p class="error-message">${t.supervisionCompilaTutto}</p>`;
           return;
         }
 
-        // Definisci soglie
+        // Define thresholds
         const sogliaIPPB     = 150;
         const sogliaCoaching = 30;
         const sogliaIndiv    = 15;
@@ -1470,7 +1539,7 @@
         const totPsico       = singolo + gruppo;
         const barTot         = sogliaIPPB + sogliaCoaching + sogliaTotPsico;
 
-        // Segmenti della barra
+        // Progress bar segments
         const segm = [
           { val: Math.min(ippb, sogliaIPPB), color: '#33c57d', label: t.supervisionBar.ippb },
           { val: Math.min(coaching, sogliaCoaching), color: '#ffe066', label: t.supervisionBar.coaching },
@@ -1493,7 +1562,7 @@
         const totale = ippb + coaching + singolo + gruppo;
         html3 += `<p style="margin-bottom:8px;"><strong>${t.supervisionValid(totale)}</strong></p>`;
 
-        // Qui ora uso SOLO la variabile 'mancanze' dichiarata sopra!
+        // Use only the 'mancanze' variable declared above
         if (ippb < sogliaIPPB) mancanze.push(t.supervisionMissingIPPB(sogliaIPPB - ippb));
         if (coaching < sogliaCoaching) mancanze.push(t.supervisionMissingCoaching(sogliaCoaching - coaching));
         if (totPsico < sogliaTotPsico) mancanze.push(t.supervisionMissingTotPsico(sogliaTotPsico - totPsico));
@@ -1557,10 +1626,10 @@
 
         function validateCrediti() {
             let errore = false;
-            // Validazione solo se la sezione è visibile
+            // Validate only if the section is visible
             const section = document.getElementById('creditSectionTeorici');
             if (section && isVisible(section)) {
-                ['partecipazioneSSPP'].forEach(id => {
+                ['partecipazioneSSPP','introProgram'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el && el.selectedIndex === 0) {
                     el.classList.add('errore-select');
@@ -1569,7 +1638,37 @@
                     el.classList.remove('errore-select');
                 }
                 });
+                const program = document.getElementById('introProgram').value;
+                if (program === '2024') {
+                    const intro = document.getElementById('creditiCorso2024');
+                    const val = parseInt(intro.value,10);
+                    if (!val || val < 1 || val > 50) {
+                        intro.classList.add('error');
+                        errore = true;
+                    } else {
+                        intro.classList.remove('error');
+                    }
+                } else {
+                    document.getElementById('creditiCorso2024').classList.remove('error');
+                }
             }
+            return errore;
+        }
+
+        // Check that gerontopsychiatry and center change questions are answered
+        function validateGerontoCambio() {
+            let errore = false;
+            ['gerontoPsy', 'cambioCentro'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el && isVisible(el)) {
+                    if (el.selectedIndex === 0) {
+                        el.classList.add('errore-select');
+                        errore = true;
+                    } else {
+                        el.classList.remove('errore-select');
+                    }
+                }
+            });
             return errore;
         }
 
@@ -1595,22 +1694,22 @@
             let errGeronto = validateGerontoCambio();
             let errCrediti = validateCrediti();
             let errSupervisioni = validateSupervisioni();
-            return !(errPeriodi || errCrediti || errSupervisioni);
+            return !(errPeriodi || errGeronto || errCrediti || errSupervisioni);
         }
 
 
       document.getElementById('calcBtn').onclick = updateResultsUI;
       
         function updateResultsUI() {
-        calculateResult();      // Periodi
-        calcolaCrediti();       // Crediti
-        calcolaSupervisioni();  // Supervisioni
-        // Sempre valida tutto!
+        calculateResult();      // Work periods
+        calcolaCrediti();       // Credits
+        calcolaSupervisioni();  // Supervisions
+        // Always validate all sections
         const errorePeriodi = validatePeriodi();
         const erroreCrediti = validateCrediti();
         const erroreSupervisioni = validateSupervisioni();
 
-        // Mostra header e PDF solo se almeno una delle sezioni è valida e senza errori
+        // Show header and PDF only if at least one section is valid without errors
         const showHeader = (
             (!errorePeriodi && document.getElementById('risultato').innerHTML.trim() !== '') ||
             (!erroreCrediti && document.getElementById('creditiOutput').innerHTML.trim() !== '') ||
@@ -1621,6 +1720,17 @@
         }
 
       
+        document.getElementById('introProgram').addEventListener('change', e => {
+          const val = e.target.value;
+          document.getElementById('intro2024Fields').style.display = val === '2024' ? 'block' : 'none';
+          document.getElementById('intro2009Fields').style.display = val === '2009' ? 'block' : 'none';
+          if (val === '2024') {
+            ['corsoCog','corsoPsy','corsoSis'].forEach(id => document.getElementById(id).checked = false);
+          } else if (val === '2009') {
+            document.getElementById('creditiCorso2024').value = '';
+          }
+        });
+
         document.getElementById('languageSwitcher').addEventListener('change', e => {
         const lang = e.target.value;
         localStorage.setItem('selectedLanguage', lang);
@@ -1747,8 +1857,8 @@
     
     
     <div id="pdfExportBox" class="offscreen">
-      <h1 id="pdfTitle" style="text-align: center; color:#352682; font-size: 2.3em; font-weight: bold; margin-bottom: 12px; font-family: sans-serif;"></h1>
-      <h2 id="pdfSubtitle" style="text-align: center; color:#352682; font-size: 1.22em; font-weight: 500; margin-bottom: 32px; font-family: sans-serif;"></h2>
+      <h1 id="pdfTitle" style="text-align: center; color:#352682; font-size: 2.3em; font-weight: bold; margin-bottom: 12px; font-family: Montserrat,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;"></h1>
+      <h2 id="pdfSubtitle" style="text-align: center; color:#352682; font-size: 1.22em; font-weight: 500; margin-bottom: 32px; font-family: Montserrat,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;"></h2>
       <div id="pdfRisultato1" style="margin-bottom:34px"></div>
       <div id="pdfRisultato2" style="margin-bottom:28px"></div>
       <div id="pdfRisultato3" style="margin-bottom:28px"></div>
