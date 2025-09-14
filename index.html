@@ -200,6 +200,12 @@
         text-align: left;
       }
 
+      .checkbox-group input[type="checkbox"] {
+        /* Prevent stretched checkboxes */
+        flex-grow: 0;
+        width: auto;
+      }
+
       .remove-period-btn {
         position: absolute;
         top: -18px;  
@@ -1429,7 +1435,22 @@
           mancanze.push(t.creditiMissingSSPPNo);
         }
 
-        const teorici = parseFloat(document.getElementById('creditiTeorici').value) || 0;
+        const teoriciBase = parseFloat(document.getElementById('creditiTeorici').value) || 0;
+        const program = document.getElementById('introProgram').value;
+        let introCrediti = 0;
+        let corsi2009 = [];
+        if (program === '2024') {
+          introCrediti = parseFloat(document.getElementById('creditiCorso2024').value) || 0;
+        } else if (program === '2009') {
+          corsi2009 = [
+            { id: 'corsoCog', label: t.labelCorsoCog },
+            { id: 'corsoPsy', label: t.labelCorsoPsy },
+            { id: 'corsoSis', label: t.labelCorsoSis }
+          ];
+          introCrediti = corsi2009.filter(c => document.getElementById(c.id).checked).length * 12;
+        }
+
+        const teorici = teoriciBase + introCrediti;
         const psy = parseFloat(document.getElementById('creditiPsy').value) || 0;
         const cong = parseFloat(document.getElementById('creditiCong').value) || 0;
         const maxTeorici = 240, maxPsy = 180, maxCong = 180;
@@ -1461,6 +1482,11 @@
         if (psy < maxPsy) mancanze.push(t.creditiMissingPsy(maxPsy - psy));
         if (cong < maxCong) mancanze.push(t.creditiMissingCong(maxCong - cong));
 
+
+        if (program === '2024') {
+          if (introCrediti < 40) mancanze.push(t.creditiMissingIntro2024(40 - introCrediti));
+        } else if (program === '2009') {
+
         const program = document.getElementById('introProgram').value;
         if (program === '2024') {
           const intro = parseFloat(document.getElementById('creditiCorso2024').value) || 0;
@@ -1471,6 +1497,7 @@
             { id: 'corsoPsy', label: t.labelCorsoPsy },
             { id: 'corsoSis', label: t.labelCorsoSis }
           ];
+
           const selezionati2009 = corsi2009.filter(c => document.getElementById(c.id).checked);
           if (selezionati2009.length === 0) {
             mancanze.push(t.creditiMissingIntro);
