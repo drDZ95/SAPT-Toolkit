@@ -331,7 +331,7 @@
     <br>
 
     <div id="DomcambioCentro" class="section" style="display:none;">
-      <label for="gerntoPsy"><span id="labelGerontoPsy"></span>
+      <label for="gerontoPsy"><span id="labelGerontoPsy"></span>
         <select id="gerontoPsy">
           <option value="" disabled selected hidden></option>
           <option value="yes"></option>
@@ -489,12 +489,9 @@
           optProgram2024:'Programm 2024',
           optProgram2009:'Programm 2009',
           labelCorso2024:'Einführungskurs Psychotherapie 2024',
-          labelCorsoCog:'Kognitiv-Verhaltenstherapie',
-          labelCorsoPsy:'Psychodynamisch/Psychoanalytisch',
-          labelCorsoSis:'Systemisch',
-          labelCorsoCog:'Kognitives Seminar',
-          labelCorsoPsy:'Psychodynamischer Kurs',
-          labelCorsoSis:'Systemischer Workshop',
+          intro2009Cog: "Kognitiv-Verhaltenstherapie (Einführungskurs)",
+          intro2009Psy: "Psychodynamisch (Einführungskurs)",
+          intro2009Sis: "Systemisch (Einführungskurs)",
           labelPsy:'Psychiatrie-Credits',
           labelCong:'Kongress-Credits',
           labelSSPP:'Teilnahme an SSPP',
@@ -620,12 +617,9 @@
           optProgram2024:'Programme 2024',
           optProgram2009:'Programme 2009',
           labelCorso2024:'Cours d’introduction à la psychothérapie 2024',
-          labelCorsoCog:'Cognitivo-comportementale',
-          labelCorsoPsy:'Psychodynamique/psychanalytique',
-          labelCorsoSis:'Systémique',
-          labelCorsoCog:'Séminaire cognitif',
-          labelCorsoPsy:'Cours psychodynamique',
-          labelCorsoSis:'Atelier systémique',
+          intro2009Cog: "Cognitivo-comportemental (cours d’introduction)",
+          intro2009Psy: "Psychodynamique (cours d’introduction)",
+          intro2009Sis: "Systémique (cours d’introduction)",
           labelPsy:'Crédits psychiatrie',
           labelCong:'Crédits congrès',
           labelSSPP:'Participation SSPP',
@@ -752,12 +746,9 @@
           optProgram2024:'Programma 2024',
           optProgram2009:'Programma 2009',
           labelCorso2024:'Corso introduttivo alla psicoterapia 2024',
-          labelCorsoCog:'Cognitivo-comportamentale',
-          labelCorsoPsy:'Psicodinamica/psicoanalitica',
-          labelCorsoSis:'Sistemica',
-          labelCorsoCog:'Seminario cognitivo',
-          labelCorsoPsy:'Corso psicodinamico',
-          labelCorsoSis:'Workshop sistemico',
+          intro2009Cog: "Cognitivo-comportamentale (corso introduttivo)",
+          intro2009Psy: "Psicodinamica (corso introduttivo)",
+          intro2009Sis: "Sistemica (corso introduttivo)",
           labelPsy:'Crediti Psichiatria',
           labelCong:'Crediti Congresso',
           labelSSPP:'Partecipazione SSPP',
@@ -904,10 +895,10 @@
         document.getElementById('creditsTitle').textContent = t.creditsTitle;
         document.getElementById('supervisionTitle').textContent = t.supervisionTitle;
 
-        const gerntoPsySel = document.getElementById('gerontoPsy');
-        gerntoPsySel.options[0].textContent = t.selectPrompt;
-        gerntoPsySel.options[1].textContent = t.optSiG;
-        gerntoPsySel.options[2].textContent = t.optNoG;
+        const gerontoPsySel = document.getElementById('gerontoPsy');
+        gerontoPsySel.options[0].textContent = t.selectPrompt;
+        gerontoPsySel.options[1].textContent = t.optSiG;
+        gerontoPsySel.options[2].textContent = t.optNoG;
         
         const cambioCentroSel = document.getElementById('cambioCentro');
         cambioCentroSel.options[0].textContent = t.selectPrompt;
@@ -922,9 +913,9 @@
         introSel.options[1].textContent = t.optProgram2024;
         introSel.options[2].textContent = t.optProgram2009;
         document.getElementById('labelCorso2024').textContent = t.labelCorso2024;
-        document.getElementById('labelCorsoCog').textContent = t.labelCorsoCog;
-        document.getElementById('labelCorsoPsy').textContent = t.labelCorsoPsy;
-        document.getElementById('labelCorsoSis').textContent = t.labelCorsoSis;
+        document.getElementById('labelCorsoCog').textContent = t.intro2009Cog;
+        document.getElementById('labelCorsoPsy').textContent = t.intro2009Psy;
+        document.getElementById('labelCorsoSis').textContent = t.intro2009Sis;
         document.getElementById('labelPsy').textContent = t.labelPsy;
         document.getElementById('labelCong').textContent = t.labelCong;
         document.getElementById('labelSSPP').textContent = t.labelSSPP;
@@ -1497,11 +1488,11 @@
         if (program === '2024') {
           introCrediti = parseFloat(document.getElementById('creditiCorso2024').value) || 0;
         } else if (program === '2009') {
-          corsi2009 = [
-            { id: 'corsoCog', label: t.labelCorsoCog },
-            { id: 'corsoPsy', label: t.labelCorsoPsy },
-            { id: 'corsoSis', label: t.labelCorsoSis }
-          ];
+          const corsi2009 = [
+          { id: 'corsoCog', label: t.intro2009Cog },
+          { id: 'corsoPsy', label: t.intro2009Psy },
+          { id: 'corsoSis', label: t.intro2009Sis }
+        ];
           introCrediti = corsi2009.filter(c => document.getElementById(c.id).checked).length * 12;
         }
 
