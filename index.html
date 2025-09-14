@@ -31,14 +31,14 @@
   <head>
     <meta charset="UTF-8">
     <title id="pageTitle"></title>
-
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 
     <style>
       body {
-        font-family: sans-serif;
+        font-family: Montserrat,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
         padding: 20px;
         max-width: 900px;
         margin: auto;
@@ -54,7 +54,7 @@
         border-radius: 32px;
         box-shadow: 0 4px 28px rgba(60,40,90,0.10);
         color: #352682;
-        font-family: sans-serif;
+        font-family: Montserrat,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
       }
     
 
@@ -356,8 +356,17 @@
       <input type="number" id="creditiTeorici" min="0" max="500" placeholder="0">
       <span class="input-error" style="display:none;color:#dc3545;font-size:0.98em;margin-top:2px"></span>
       <div class="small-title" id="introTitle"></div>
-      <div class="checkbox-group">
-        <label><input type="checkbox" id="corso2024"><span id="labelCorso2024"></span></label>
+      <label id="introProgramLabel" for="introProgram"></label>
+      <select id="introProgram">
+        <option value=""></option>
+        <option value="2024"></option>
+        <option value="2009"></option>
+      </select>
+      <div id="intro2024Fields" style="display:none; margin-top:8px;">
+        <label for="creditiCorso2024" id="labelCorso2024"></label>
+        <input type="number" id="creditiCorso2024" min="1" max="50" placeholder="0">
+      </div>
+      <div id="intro2009Fields" class="checkbox-group" style="display:none; margin-top:8px;">
         <label><input type="checkbox" id="corsoCog"><span id="labelCorsoCog"></span></label>
         <label><input type="checkbox" id="corsoPsy"><span id="labelCorsoPsy"></span></label>
         <label><input type="checkbox" id="corsoSis"><span id="labelCorsoSis"></span></label>
@@ -470,7 +479,10 @@
           optSi:'Ja',
           labelTeorici:'Theoretische Credits',
           introTitle:'Einführung in Modelle',
-          labelCorso2024:'Kurs 2024',
+          introProgramQuestion:'Nach welchem Programm streben Sie den Facharzttitel an?',
+          optProgram2024:'Programm 2024',
+          optProgram2009:'Programm 2009',
+          labelCorso2024:'Einführungskurs Psychotherapie 2024',
           labelCorsoCog:'Kognitives Seminar',
           labelCorsoPsy:'Psychodynamischer Kurs',
           labelCorsoSis:'Systemischer Workshop',
@@ -548,6 +560,8 @@
           labelCorsoPsy: 'Psychodynamisch/Psychoanalytisch',
           labelCorsoSis: 'Systemisch',
           creditiMissingIntroSome: mancanti => `Du musst noch die folgende Einführungskurse in Psychotherapie besuchen: <b>${mancanti.join(', ')}</b> gemäss Weiterbildungsprogramm 2009 oder den neuen 40-Credit-Kurs gemäss Weiterbildungsprogramm 2024`,
+          creditiMissingIntro2024: n => `Es fehlen noch <b>${n}</b> Credits im Einführungskurs Psychotherapie (Programm 2024).`,
+          creditiMissingProgram: "Du musst die Frage zum Programm beantworten.",
           creditiMissingSSPP: "Du hast die Frage zur Teilnahme am SGPP-Kongress nicht beantwortet",
           creditiMissingSSPPNo: "Du musst die vollständige Teilnahme am jährlichen SSPP-Kongress nachweisen",
           supervisionTitle: "Erforderliche Supervisionen",
@@ -587,7 +601,10 @@
           optSi:'Oui',
           labelTeorici:'Crédits théoriques',
           introTitle:'Introduction modèles',
-          labelCorso2024:'Cours 2024',
+          introProgramQuestion:'Selon quel programme poursuivez-vous le titre de spécialiste ?',
+          optProgram2024:'Programme 2024',
+          optProgram2009:'Programme 2009',
+          labelCorso2024:'Cours d’introduction à la psychothérapie 2024',
           labelCorsoCog:'Séminaire cognitif',
           labelCorsoPsy:'Cours psychodynamique',
           labelCorsoSis:'Atelier systémique',
@@ -666,6 +683,8 @@
           labelCorsoPsy: 'Psychodynamique/psychanalytique',
           labelCorsoSis: 'Systémique',
           creditiMissingIntroSome: mancanti => `Vous devez encore suivre les cours d’introduction à la psychothérapie suivants : <b>${mancanti.join(', ')}</b> selon le programme 2009 ou bien le nouveau cours complet de 40 crédits du programme 2024.`,
+          creditiMissingIntro2024: n => `Il vous manque encore <b>${n}</b> crédits dans le cours d’introduction à la psychothérapie (programme 2024).`,
+          creditiMissingProgram: "Vous devez répondre à la question sur le programme.",
           creditiMissingSSPP: "Vous devez répondre à la question sur la participation complète au congrès annuel de la SSPP.",
           creditiMissingSSPPNo: "La participation complète obligatoire au congrès annuel de la SSPP n’a pas encore été effectuée.",
           supervisionTitle: "Supervisions requises",
@@ -705,7 +724,10 @@
           optSi:'Sì',
           labelTeorici:'Crediti teorici',
           introTitle:'Introduzione modelli psicoterapeutici',
-          labelCorso2024:'Corso 2024',
+          introProgramQuestion:'Secondo quale programma stai perseguendo il titolo di specialista?',
+          optProgram2024:'Programma 2024',
+          optProgram2009:'Programma 2009',
+          labelCorso2024:'Corso introduttivo alla psicoterapia 2024',
           labelCorsoCog:'Seminario cognitivo',
           labelCorsoPsy:'Corso psicodinamico',
           labelCorsoSis:'Workshop sistemico',
@@ -782,6 +804,8 @@
           labelCorsoPsy: 'psicodinamica/psicoanalitica',
           labelCorsoSis: 'sistemica',
           creditiMissingIntroSome: mancanti => `Devi ancora frequentare i seguenti corsi di introduzione alla psicoterapia: <b>${mancanti.join(', ')}</b> secondo programma 2009 oppure il nuovo corso completo da 40 crediti secondo programma 2024.`,
+          creditiMissingIntro2024: n => `Ti mancano ancora <b>${n}</b> crediti nel corso introduttivo alla psicoterapia (programma 2024).`,
+          creditiMissingProgram: "Devi rispondere alla domanda sul programma.",
           creditiMissingSSPP: "Devi rispondere alla partecipazione completa al congresso annuale SSPP.",
           creditiMissingSSPPNo: "Devi ancora effettuare una partecipazione completa obbligatoria al congresso annuale della SSPP.",
           supervisionTitle: "Supervisioni richieste",
@@ -856,6 +880,11 @@
 
         document.getElementById('labelTeorici').textContent = t.labelTeorici;
         document.getElementById('introTitle').textContent = t.introTitle;
+        document.getElementById('introProgramLabel').textContent = t.introProgramQuestion;
+        const introSel = document.getElementById('introProgram');
+        introSel.options[0].textContent = t.selectPrompt;
+        introSel.options[1].textContent = t.optProgram2024;
+        introSel.options[2].textContent = t.optProgram2009;
         document.getElementById('labelCorso2024').textContent = t.labelCorso2024;
         document.getElementById('labelCorsoCog').textContent = t.labelCorsoCog;
         document.getElementById('labelCorsoPsy').textContent = t.labelCorsoPsy;
@@ -901,13 +930,15 @@
           document.getElementById(id).style.display = 'none';
         });
         creditiMostrati = false;
-        ['creditiTeorici','creditiPsy','creditiCong','corso2024','corsoCog','corsoPsy','corsoSis','partecipazioneSSPP'].forEach(id => {
+        ['creditiTeorici','creditiPsy','creditiCong','creditiCorso2024','corsoCog','corsoPsy','corsoSis','introProgram','partecipazioneSSPP'].forEach(id => {
           const el = document.getElementById(id);
           if (!el) return;
           if (el.type === 'checkbox') el.checked = false;
           else if (el.tagName === 'SELECT') el.selectedIndex = 0;
           else el.value = '';
         });
+        document.getElementById('intro2024Fields').style.display = 'none';
+        document.getElementById('intro2009Fields').style.display = 'none';
         document.getElementById('addCreditSectionBtn').style.display = 'inline-block';
         checkShowCalcButton();
         updateResultsUI();
@@ -1430,20 +1461,25 @@
         if (psy < maxPsy) mancanze.push(t.creditiMissingPsy(maxPsy - psy));
         if (cong < maxCong) mancanze.push(t.creditiMissingCong(maxCong - cong));
 
-        const fatto2024 = document.getElementById('corso2024').checked;
-        const corsi2009 = [
-          { id: 'corsoCog', label: t.labelCorsoCog },
-          { id: 'corsoPsy', label: t.labelCorsoPsy },
-          { id: 'corsoSis', label: t.labelCorsoSis }
-        ];
-    
-        const selezionati2009 = corsi2009.filter(c => document.getElementById(c.id).checked);
-
-        if (!fatto2024 && selezionati2009.length === 0) {
-          mancanze.push(t.creditiMissingIntro);
-        } else if (!fatto2024 && selezionati2009.length > 0 && selezionati2009.length < corsi2009.length) {
-          const mancanti = corsi2009.filter(c => !document.getElementById(c.id).checked).map(c => c.label);
-          mancanze.push(t.creditiMissingIntroSome(mancanti));
+        const program = document.getElementById('introProgram').value;
+        if (program === '2024') {
+          const intro = parseFloat(document.getElementById('creditiCorso2024').value) || 0;
+          if (intro < 40) mancanze.push(t.creditiMissingIntro2024(40 - intro));
+        } else if (program === '2009') {
+          const corsi2009 = [
+            { id: 'corsoCog', label: t.labelCorsoCog },
+            { id: 'corsoPsy', label: t.labelCorsoPsy },
+            { id: 'corsoSis', label: t.labelCorsoSis }
+          ];
+          const selezionati2009 = corsi2009.filter(c => document.getElementById(c.id).checked);
+          if (selezionati2009.length === 0) {
+            mancanze.push(t.creditiMissingIntro);
+          } else if (selezionati2009.length < corsi2009.length) {
+            const mancanti = corsi2009.filter(c => !document.getElementById(c.id).checked).map(c => c.label);
+            mancanze.push(t.creditiMissingIntroSome(mancanti));
+          }
+        } else {
+          mancanze.push(t.creditiMissingProgram);
         }
 
     
@@ -1591,7 +1627,7 @@
             // Validate only if the section is visible
             const section = document.getElementById('creditSectionTeorici');
             if (section && isVisible(section)) {
-                ['partecipazioneSSPP'].forEach(id => {
+                ['partecipazioneSSPP','introProgram'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el && el.selectedIndex === 0) {
                     el.classList.add('errore-select');
@@ -1600,6 +1636,19 @@
                     el.classList.remove('errore-select');
                 }
                 });
+                const program = document.getElementById('introProgram').value;
+                if (program === '2024') {
+                    const intro = document.getElementById('creditiCorso2024');
+                    const val = parseInt(intro.value,10);
+                    if (!val || val < 1 || val > 50) {
+                        intro.classList.add('error');
+                        errore = true;
+                    } else {
+                        intro.classList.remove('error');
+                    }
+                } else {
+                    document.getElementById('creditiCorso2024').classList.remove('error');
+                }
             }
             return errore;
         }
@@ -1669,6 +1718,17 @@
         }
 
       
+        document.getElementById('introProgram').addEventListener('change', e => {
+          const val = e.target.value;
+          document.getElementById('intro2024Fields').style.display = val === '2024' ? 'block' : 'none';
+          document.getElementById('intro2009Fields').style.display = val === '2009' ? 'block' : 'none';
+          if (val === '2024') {
+            ['corsoCog','corsoPsy','corsoSis'].forEach(id => document.getElementById(id).checked = false);
+          } else if (val === '2009') {
+            document.getElementById('creditiCorso2024').value = '';
+          }
+        });
+
         document.getElementById('languageSwitcher').addEventListener('change', e => {
         const lang = e.target.value;
         localStorage.setItem('selectedLanguage', lang);
@@ -1795,8 +1855,8 @@
     
     
     <div id="pdfExportBox" class="offscreen">
-      <h1 id="pdfTitle" style="text-align: center; color:#352682; font-size: 2.3em; font-weight: bold; margin-bottom: 12px; font-family: sans-serif;"></h1>
-      <h2 id="pdfSubtitle" style="text-align: center; color:#352682; font-size: 1.22em; font-weight: 500; margin-bottom: 32px; font-family: sans-serif;"></h2>
+      <h1 id="pdfTitle" style="text-align: center; color:#352682; font-size: 2.3em; font-weight: bold; margin-bottom: 12px; font-family: Montserrat,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;"></h1>
+      <h2 id="pdfSubtitle" style="text-align: center; color:#352682; font-size: 1.22em; font-weight: 500; margin-bottom: 32px; font-family: Montserrat,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;"></h2>
       <div id="pdfRisultato1" style="margin-bottom:34px"></div>
       <div id="pdfRisultato2" style="margin-bottom:28px"></div>
       <div id="pdfRisultato3" style="margin-bottom:28px"></div>
