@@ -31,9 +31,7 @@
   <head>
     <meta charset="UTF-8">
     <title id="pageTitle"></title>
-
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -494,6 +492,9 @@
           labelCorsoCog:'Kognitiv-Verhaltenstherapie',
           labelCorsoPsy:'Psychodynamisch/Psychoanalytisch',
           labelCorsoSis:'Systemisch',
+          labelCorsoCog:'Kognitives Seminar',
+          labelCorsoPsy:'Psychodynamischer Kurs',
+          labelCorsoSis:'Systemischer Workshop',
           labelPsy:'Psychiatrie-Credits',
           labelCong:'Kongress-Credits',
           labelSSPP:'Teilnahme an SSPP',
@@ -622,6 +623,9 @@
           labelCorsoCog:'Cognitivo-comportementale',
           labelCorsoPsy:'Psychodynamique/psychanalytique',
           labelCorsoSis:'Systémique',
+          labelCorsoCog:'Séminaire cognitif',
+          labelCorsoPsy:'Cours psychodynamique',
+          labelCorsoSis:'Atelier systémique',
           labelPsy:'Crédits psychiatrie',
           labelCong:'Crédits congrès',
           labelSSPP:'Participation SSPP',
@@ -751,6 +755,9 @@
           labelCorsoCog:'Cognitivo-comportamentale',
           labelCorsoPsy:'Psicodinamica/psicoanalitica',
           labelCorsoSis:'Sistemica',
+          labelCorsoCog:'Seminario cognitivo',
+          labelCorsoPsy:'Corso psicodinamico',
+          labelCorsoSis:'Workshop sistemico',
           labelPsy:'Crediti Psichiatria',
           labelCong:'Crediti Congresso',
           labelSSPP:'Partecipazione SSPP',
@@ -1399,11 +1406,17 @@
         if (ospAValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ospAValido)}%; background:darkgreen;" title="${t.catAOsp}"></div>`;
         if (ospBValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ospBValido)}%; background:#6fcf97;" title="${t.catBOsp}"></div>`;
         if (ospCValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ospCValido)}%; background:#a8e6cf;" title="${t.catCOsp}"></div>`;
+
         if (ospOtherValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ospOtherValido)}%; background:#82e0aa;" title="${t.catOtherOsp}"></div>`;
         if (ambAValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ambAValido)}%; background:darkblue;" title="${t.catAAmb}"></div>`;
         if (ambBValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ambBValido)}%; background:#5dade2;" title="${t.catBAmb}"></div>`;
         if (ambCValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ambCValido)}%; background:#aed6f1;" title="${t.catCAmb}"></div>`;
         if (ambOtherValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ambOtherValido)}%; background:#85c1e9;" title="${t.catOtherAmb}"></div>`;
+
+        if (ambAValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ambAValido)}%; background:darkblue;" title="${t.catAAmb}"></div>`;
+        if (ambBValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ambBValido)}%; background:#5dade2;" title="${t.catBAmb}"></div>`;
+        if (ambCValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ambCValido)}%; background:#aed6f1;" title="${t.catCAmb}"></div>`;
+
         if (studioValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(studioValido)}%; background:#d4e6f1;" title="${t.tipoStudio}"></div>`;
         if (somatico > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(somatico)}%; background:gold;" title="${t.tipoSomatico}"></div>`;
         if (extraValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(extraValido)}%; background:violet;" title="${t.extraLabel}"></div>`;
@@ -1524,9 +1537,28 @@
         if (psy < maxPsy) mancanze.push(t.creditiMissingPsy(maxPsy - psy));
         if (cong < maxCong) mancanze.push(t.creditiMissingCong(maxCong - cong));
 
+
         if (program === '2024') {
           if (introCrediti < 40) mancanze.push(t.creditiMissingIntro2024(40 - introCrediti));
         } else if (program === '2009') {
+
+
+        if (program === '2024') {
+          if (introCrediti < 40) mancanze.push(t.creditiMissingIntro2024(40 - introCrediti));
+        } else if (program === '2009') {
+
+        const program = document.getElementById('introProgram').value;
+        if (program === '2024') {
+          const intro = parseFloat(document.getElementById('creditiCorso2024').value) || 0;
+          if (intro < 40) mancanze.push(t.creditiMissingIntro2024(40 - intro));
+        } else if (program === '2009') {
+          const corsi2009 = [
+            { id: 'corsoCog', label: t.labelCorsoCog },
+            { id: 'corsoPsy', label: t.labelCorsoPsy },
+            { id: 'corsoSis', label: t.labelCorsoSis }
+          ];
+
+
           const selezionati2009 = corsi2009.filter(c => document.getElementById(c.id).checked);
           if (selezionati2009.length === 0) {
             mancanze.push(t.creditiMissingIntro);
