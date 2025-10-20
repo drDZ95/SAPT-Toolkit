@@ -1345,6 +1345,7 @@
         const ambA = Math.min(cat.ambA, 36), ambB = Math.min(cat.ambB, 24), ambC = Math.min(cat.ambC, 24), ambOther = Math.min(cat.ambOther, 24);
         const somatico = Math.min(cat.som, 12);
         const extra = cat.infanzia + cat.ricerca + cat.studio;
+        const studioTotale = cat.studio;
         let extraValido = Math.min(extra, 12);
 
         const totaleOsp = cat.ospA + cat.ospB + cat.ospC + cat.ospOther;
@@ -1377,7 +1378,7 @@
           ospCValido = ospC * ratioOsp;
           ospOtherValido = ospOther * ratioOsp;
         }
-        const totaleAmbPreTaglio = ambA + ambB + ambC + ambOther + studio;
+        const totaleAmbPreTaglio = ambA + ambB + ambC + ambOther + studioTotale;
         let ambAValido = 0, ambBValido = 0, ambCValido = 0, ambOtherValido = 0, studioValido = 0;
         if (totaleAmbPreTaglio > 0) {
           const ratioAmb = ambulatorialeValido / totaleAmbPreTaglio;
@@ -1385,7 +1386,7 @@
           ambBValido = ambB * ratioAmb;
           ambCValido = ambC * ratioAmb;
           ambOtherValido = ambOther * ratioAmb;
-          studioValido = studio * ratioAmb;
+          studioValido = studioTotale * ratioAmb;
         }
         const totale = somatico + ospedalieroValido + ambulatorialeValido + extraValido;
 
@@ -1400,10 +1401,6 @@
         if (ambBValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ambBValido)}%; background:#5dade2;" title="${t.catBAmb}"></div>`;
         if (ambCValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ambCValido)}%; background:#aed6f1;" title="${t.catCAmb}"></div>`;
         if (ambOtherValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ambOtherValido)}%; background:#85c1e9;" title="${t.catOtherAmb}"></div>`;
-
-        if (ambAValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ambAValido)}%; background:darkblue;" title="${t.catAAmb}"></div>`;
-        if (ambBValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ambBValido)}%; background:#5dade2;" title="${t.catBAmb}"></div>`;
-        if (ambCValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(ambCValido)}%; background:#aed6f1;" title="${t.catCAmb}"></div>`;
 
         if (studioValido > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(studioValido)}%; background:#d4e6f1;" title="${t.tipoStudio}"></div>`;
         if (somatico > 0) html1 += `<div class="stacked-bar-segment" style="width:${bar(somatico)}%; background:gold;" title="${t.tipoSomatico}"></div>`;
@@ -1420,7 +1417,7 @@
         if (ambB > 0) html1 += `<span style="background:#5dade2;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${t.catBAmb}</span>`;
         if (ambC > 0) html1 += `<span style="background:#aed6f1;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${t.catCAmb}</span>`;
         if (ambOther > 0) html1 += `<span style="background:#85c1e9;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${t.catOtherAmb}</span>`;
-        if (studio > 0) html1 += `<span style="background:#d4e6f1;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${t.tipoStudio}</span>`;
+        if (studioTotale > 0) html1 += `<span style="background:#d4e6f1;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${t.tipoStudio}</span>`;
         if (somatico > 0) html1 += `<span style="background:gold;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${t.tipoSomatico}</span>`;
         if (extraValido > 0) html1 += `<span style="background:violet;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${t.extraLabel}</span>`;
         if (totale < 72) html1 += `<span style="background:#ccc;color:white;padding:2px 8px;border-radius:8px;margin-right:5px">${t.missingMonths}</span>`;
@@ -1462,18 +1459,19 @@
           document.getElementById('creditiOutput').innerHTML = '';
           return;
         }
+
         const lang = getCurrentLang();
         const t = translations[lang];
         const output = document.getElementById('creditiOutput');
         let html2 = `<h2 class="result-box-title">${t.creditsTitle}</h2>`;
         const partecipazione = document.getElementById('partecipazioneSSPP').value;
-        let mancanze = [];
+        const mancanze = [];
 
         if (!partecipazione) {
           output.innerHTML = `<p class="error-message">${t.creditiMissingSSPP}</p>`;
           return;
         }
-    
+
         if (partecipazione === 'no') {
           mancanze.push(t.creditiMissingSSPPNo);
         }
@@ -1481,16 +1479,29 @@
         const teoriciBase = parseFloat(document.getElementById('creditiTeorici').value) || 0;
         const program = document.getElementById('introProgram').value;
         let introCrediti = 0;
-        let corsi2009 = [];
-        if (program === '2024') {
-          introCrediti = parseFloat(document.getElementById('creditiCorso2024').value) || 0;
-        } else if (program === '2009') {
-          const corsi2009 = [
+
+        const introCourses = [
           { id: 'corsoCog', label: t.intro2009Cog },
           { id: 'corsoPsy', label: t.intro2009Psy },
           { id: 'corsoSis', label: t.intro2009Sis }
         ];
-          introCrediti = corsi2009.filter(c => document.getElementById(c.id).checked).length * 12;
+
+        if (program === '2024') {
+          introCrediti = parseFloat(document.getElementById('creditiCorso2024').value) || 0;
+          if (introCrediti < 40) mancanze.push(t.creditiMissingIntro2024(40 - introCrediti));
+        } else if (program === '2009') {
+          const selezionati2009 = introCourses.filter(c => document.getElementById(c.id).checked);
+          introCrediti = selezionati2009.length * 12;
+          if (selezionati2009.length === 0) {
+            mancanze.push(t.creditiMissingIntro);
+          } else if (selezionati2009.length < introCourses.length) {
+            const mancanti = introCourses
+              .filter(c => !document.getElementById(c.id).checked)
+              .map(c => c.label);
+            mancanze.push(t.creditiMissingIntroSome(mancanti));
+          }
+        } else {
+          mancanze.push(t.creditiMissingProgram);
         }
 
         const teorici = teoriciBase + introCrediti;
@@ -1506,59 +1517,25 @@
           { val: Math.min(cong, maxCong), color: 'purple', label: t.creditiBar.cong },
           { val: Math.max(0, 600 - totalCrediti), color: '#ccc', label: t.creditiBar.missing }
         ];
-    
+
         segm.forEach(s => {
           html2 += `<div class="stacked-bar-segment" style="width:${(s.val/600*100).toFixed(1)}%;background:${s.color}" title="${s.label}: ${s.val}"></div>`;
         });
-    
+
         html2 += '</div>';
 
         html2 += `<div style="margin-bottom:12px;">`;
-    
+
         segm.forEach(s => {
           if (s.val > 0) html2 += `<span style="display:inline-block;margin-right:7px;background:${s.color};padding:2px 9px;border-radius:7px;color:#fff;font-size:0.99em">${s.label}</span>`;
         });
-          
+
         html2 += `</div>`;
-    
+
         if (teorici < maxTeorici) mancanze.push(t.creditiMissingTeorici(maxTeorici - teorici));
         if (psy < maxPsy) mancanze.push(t.creditiMissingPsy(maxPsy - psy));
         if (cong < maxCong) mancanze.push(t.creditiMissingCong(maxCong - cong));
 
-
-        if (program === '2024') {
-          if (introCrediti < 40) mancanze.push(t.creditiMissingIntro2024(40 - introCrediti));
-        } else if (program === '2009') {
-
-
-        if (program === '2024') {
-          if (introCrediti < 40) mancanze.push(t.creditiMissingIntro2024(40 - introCrediti));
-        } else if (program === '2009') {
-
-        const program = document.getElementById('introProgram').value;
-        if (program === '2024') {
-          const intro = parseFloat(document.getElementById('creditiCorso2024').value) || 0;
-          if (intro < 40) mancanze.push(t.creditiMissingIntro2024(40 - intro));
-        } else if (program === '2009') {
-          const corsi2009 = [
-            { id: 'corsoCog', label: t.labelCorsoCog },
-            { id: 'corsoPsy', label: t.labelCorsoPsy },
-            { id: 'corsoSis', label: t.labelCorsoSis }
-          ];
-
-
-          const selezionati2009 = corsi2009.filter(c => document.getElementById(c.id).checked);
-          if (selezionati2009.length === 0) {
-            mancanze.push(t.creditiMissingIntro);
-          } else if (selezionati2009.length < corsi2009.length) {
-            const mancanti = corsi2009.filter(c => !document.getElementById(c.id).checked).map(c => c.label);
-            mancanze.push(t.creditiMissingIntroSome(mancanti));
-          }
-        } else {
-          mancanze.push(t.creditiMissingProgram);
-        }
-
-    
         html2 += `<h3 style="color:coral; margin-top: 18px;">${t.comments}</h3>`;
         html2 += `<p style="margin-bottom:8px;"><strong>${tReplace(t.validCredits, { v: totalCrediti })}</strong></p>`;
         if (mancanze.length > 0) {
